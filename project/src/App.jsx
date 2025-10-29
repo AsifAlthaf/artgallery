@@ -12,6 +12,9 @@ import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 import ArtistUpload from "./pages/ArtistUpload";
 import NotFound from "./pages/NotFound";
+import ProfilePage from "@/pages/ProfilePage";
+import Dashboard from "@/pages/DashBoard";
+
 
 const queryClient = new QueryClient();
 
@@ -27,10 +30,12 @@ const App = () => (
             <Route path="/discover" element={<Discover />} />
             <Route path="/sell" element={<Sell />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/artist-upload" element={<ArtistUpload />} />
             <Route path="*" element={<NotFound />} />
+            <Route path="/profile" element={<ProfilePage />} />
           </Routes>
         </TooltipProvider>
       </AuthProvider>

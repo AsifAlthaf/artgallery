@@ -120,6 +120,31 @@ const getOrders = asyncHandler(async (req, res) => {
     res.json(orders);
 });
 
+// @desc    Get orders by user ID
+// @route   GET /api/orders/user/:id
+// @access  Private (must be same user or admin)
+const getOrdersByUserId = asyncHandler(async (req, res) => {
+    try {
+        const orders = await Order.find({ user: req.params.id })
+            .populate("orderItems.artwork", "title imageUrl price") // adjust fields to your Artwork schema
+            .populate("user", "name email");
+
+        // Security: only allow the logged-in user to see their orders unless admin
+        if (
+            req.user._id.toString() !== req.params.id &&
+            !req.user.isAdmin
+        ) {
+            res.status(403);
+            throw new Error("Not authorized to view these orders");
+        }
+
+        res.json(orders);
+    } catch (error) {
+        res.status(500).json({ message: "Error fetching user orders" });
+    }
+});
+
+
 export {
     addOrderItems,
     getOrderById,
@@ -127,4 +152,5 @@ export {
     updateOrderToDelivered,
     getMyOrders,
     getOrders,
+    getOrdersByUserId,
 };
