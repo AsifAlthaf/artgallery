@@ -19,23 +19,34 @@ const addOrderItems = asyncHandler(async (req, res) => {
         res.status(400);
         throw new Error('No order items');
     } else {
-        const order = new Order({
-            orderItems: orderItems.map(x => ({
-                ...x,
-                artwork: x._id, // Map _id to artwork to reference Artwork model
-                _id: undefined // Remove original _id to avoid Mongoose conflict
-            })),
-            user: req.user._id,
-            shippingAddress,
-            paymentMethod,
-            itemsPrice,
-            taxPrice,
-            shippingPrice,
-            totalPrice,
-        });
+        try {
+            console.log('Received Order Payload:', JSON.stringify(req.body, null, 2)); // Debug log
 
-        const createdOrder = await order.save();
-        res.status(201).json(createdOrder);
+            const order = new Order({
+                orderItems: orderItems.map(x => ({
+                    ...x,
+                    artwork: x.artwork || x._id, // Map _id OR artwork to reference Artwork model
+                    _id: undefined // Remove original _id to avoid Mongoose conflict
+                })),
+                user: req.user._id,
+                shippingAddress,
+                paymentMethod,
+                itemsPrice,
+                taxPrice,
+                shippingPrice,
+                totalPrice,
+            });
+
+            console.log('Order Model created, attempting save...');
+            const createdOrder = await order.save();
+            console.log('Order saved successfully:', createdOrder._id);
+            res.status(201).json(createdOrder);
+        } catch (error) {
+            console.error('SERVER ERROR Creating Order:', error);
+            console.error('Validation Errors:', error.errors); // Log Mongoose validation errors
+            res.status(500);
+            throw new Error('Failed to create order: ' + error.message);
+        }
     }
 });
 

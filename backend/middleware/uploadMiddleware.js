@@ -1,5 +1,12 @@
 import multer from "multer";
 import path from "path";
+import fs from "fs";
+
+// Ensure uploads directory exists
+const uploadDir = "uploads/";
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
 
 // Allowed file types
 const fileTypes = /jpeg|jpg|png|webp|gif/;
@@ -38,4 +45,5 @@ const upload = multer({
   },
 });
 
+export default upload;
 export default upload;
