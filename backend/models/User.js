@@ -96,6 +96,11 @@ const userSchema = new mongoose.Schema(
       default:
         "https://res.cloudinary.com/your_cloud_name/image/upload/v1/default-profile.png",
     },
+
+    lastProfileImageUpdate: {
+        type: Date,
+        default: null
+    },
     
     // Adding imageUrl to match controller usage
     imageUrl: {
