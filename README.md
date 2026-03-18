@@ -157,7 +157,8 @@ project/
 
 | Account Creation                                                                                         | Sign-in                                                                                                  | Terms & Conditions                                                                                       |
 | -------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| <img src="https://github.com/user-attachments/assets/654bc321-3e3d-4fa4-a433-47160a44ba79" width="250"/> | <img src="https://github.com/user-attachments/assets/4d1895ea-963b-4c8e-a535-3d9d3f3d4e36" width="250"/> | <img src="https://github.com/user-attachments/assets/055d0b35-24b7-4a0d-8dc4-a1a059ae4184" width="250" />
+| <img src="https://github.com/user-attachments/assets/654bc321-3e3d-4fa4-a433-47160a44ba79" width="250"/> | <img src="https://github.com/user-attachments/assets/4d1895ea-963b-4c8e-a535-3d9d3f3d4e36" width="250"/> | <img src="https://github.com/user-attachments/assets/87f002b2-900d-49bc-8195-67301fc6dbb1" width="250" />
+
 
 
 ### Browsing
