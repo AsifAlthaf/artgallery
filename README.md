@@ -1,6 +1,6 @@
-# 🎨 Art Bloom / ArtGallery
+# 🎨 Art Bloom (Formely Art Gallery)
 
-**Art Bloom (ArtGallery)** is a full-stack digital art marketplace and exhibition platform where artists can upload their artworks and customers can explore, discover, and purchase them seamlessly.
+**Art Bloom (Formely Art Gallery)** is a full-stack digital art marketplace and exhibition platform where artists can upload their artworks and customers can explore, discover, and purchase them seamlessly.
 
 The platform combines a **modern MERN stack architecture** with **mobile and web applications**, enabling users to browse art, follow artists, upload artwork, and complete purchases securely.
 
@@ -157,7 +157,8 @@ project/
 
 | Account Creation                                                                                         | Sign-in                                                                                                  | Terms & Conditions                                                                                       |
 | -------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| <img src="https://github.com/user-attachments/assets/654bc321-3e3d-4fa4-a433-47160a44ba79" width="250"/> | <img src="https://github.com/user-attachments/assets/4d1895ea-963b-4c8e-a535-3d9d3f3d4e36" width="250"/> | <img src="https://github.com/user-attachments/assets/88e7e5ab-ae45-4696-abe4-536e3a464017" width="250"/> |
+| <img src="https://github.com/user-attachments/assets/654bc321-3e3d-4fa4-a433-47160a44ba79" width="250"/> | <img src="https://github.com/user-attachments/assets/4d1895ea-963b-4c8e-a535-3d9d3f3d4e36" width="250"/> | <img src="https://github.com/user-attachments/assets/055d0b35-24b7-4a0d-8dc4-a1a059ae4184" width="250" />
+
 
 ### Browsing
 
@@ -316,13 +317,6 @@ feature/your-feature
 3. Commit changes
 4. Push to your fork
 5. Open a Pull Request
-
----
-
-# 📜 License
-
-This project is licensed under the **MIT License**.
-You are free to use, modify, and distribute with attribution.
 
 ---
 
