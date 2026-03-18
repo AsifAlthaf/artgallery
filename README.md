@@ -257,7 +257,7 @@ This repository integrates **Model Context Protocol (MCP)** to stream documentat
   "servers": {
     "artgallery Docs": {
       "type": "sse",
-      "url": "https://gitmcp.io/AsifAlthaf/artgallery/tree/Update-1"
+      "url": "https://gitmcp.io/AsifAlthaf/artgallery/"
     }
   }
 }
