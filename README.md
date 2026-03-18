@@ -325,14 +325,13 @@ feature/your-feature
 
 **Asif Althaf**
 BTech, SRM University
-Passionate about AI-powered platforms and scalable solutions
 
 **Rohini Sai**
 BTech, SRM University
 
 GitHub
 
-* https://github.com/AsifAlthaf
 * https://github.com/Rohinisai04
+* https://github.com/AsifAlthaf
 
 ---
