@@ -79,7 +79,7 @@ const Features = () => {
               </button>
             </div>
             <div className="md:w-1/2">
-              <img
+              <img loading="lazy"
                 src="https://images.unsplash.com/photo-1536924940846-227afb31e2a5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1740&q=80"
                 alt="Artist creating colorful artwork"
                 className="w-full h-auto rounded-lg shadow-lg"

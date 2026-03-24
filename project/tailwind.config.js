@@ -25,13 +25,13 @@ export default {
 				foreground: 'hsl(var(--foreground))',
 				artbloom: {
 					cream: '#F2EFD9', //#FEF7E5
-					brown: '#6D4C41',
-					gold: '#D4AF37',
+					brown: '#F97316', 
+					gold: '#F97316',
 					white: '#FFFFFF',
 					sage: '#C3C9A3',
-					peach: '#FFE0C8',
-					charcoal: '#3A3A3A'
-					//footerBrown: "#6D4C41"
+					peach: '#FFEDD5',
+					charcoal: '#3A3A3A',
+					artbloompeach: '#F97316'
 				},
 				primary: {
 					DEFAULT: 'hsl(var(--primary))',

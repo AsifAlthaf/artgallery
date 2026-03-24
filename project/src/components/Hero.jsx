@@ -91,7 +91,7 @@ const Hero = () => {
                 index === currentSlide ? "opacity-100" : "opacity-0"
               }`}
             >
-              <img
+              <img loading="lazy"
                 src={image.src}
                 alt={image.alt}
                 className="w-full h-full object-cover"

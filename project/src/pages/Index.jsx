@@ -1,20 +1,30 @@
 import React, { useEffect, useState } from 'react';
-import Navbar from '@/components/Navbar';
+import { Link } from 'react-router-dom';
 import Hero from '@/components/Hero';
 import Features from '@/components/Features';
-import Footer from '@/components/Footer';
 import { Paintbrush, Star, Users, ShoppingCart } from 'lucide-react';
+import LightGallery from 'lightgallery/react';
+import 'lightgallery/css/lightgallery.css';
+import 'lightgallery/css/lg-zoom.css';
+import 'lightgallery/css/lg-thumbnail.css';
+import lgZoom from 'lightgallery/plugins/zoom';
+import lgThumbnail from 'lightgallery/plugins/thumbnail';
+
+import { useAuth } from '@/contexts/AuthContext';
 
 const Index = () => {
   const [artworks, setArtworks] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { isAuthenticated } = useAuth();
 
   useEffect(() => {
     const fetchArtworks = async () => {
       try {
-        const res = await fetch("/api/artworks"); // 👈 your backend route
+        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+        const res = await fetch(`${API_URL}/artworks`);
+        if (!res.ok) throw new Error('Failed to fetch');
         const data = await res.json();
-        setArtworks(data);
+        setArtworks(Array.isArray(data) ? data : (data.artworks || []));
       } catch (error) {
         console.error("Error fetching artworks:", error);
       } finally {
@@ -27,7 +37,6 @@ const Index = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
       <Hero />
       <Features />
       
@@ -51,36 +60,51 @@ const Index = () => {
           ) : artworks.length === 0 ? (
             <p className="text-center text-artbloom-charcoal/70">No artworks available yet.</p>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <LightGallery
+              elementClassNames="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+              speed={500}
+              plugins={[lgZoom, lgThumbnail]}
+              selector=".gallery-item"
+              download={false}
+            >
               {artworks.map((artwork) => (
                 <div 
-                  key={artwork.id}
-                  className="glass-card rounded-xl overflow-hidden hover-lift"
+                  key={artwork._id}
+                  className="glass-card rounded-xl overflow-hidden border border-gray-100/50 hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
                 >
-                  <img
-                    src={artwork.imageUrl}
-                    alt={artwork.title}
-                    className="w-full h-64 object-cover"
-                  />
+                  <a 
+                    href={artwork.imageUrl || artwork.images?.[0]} 
+                    className="gallery-item block cursor-pointer"
+                    data-sub-html={`<h4>${artwork.title}</h4><p>$${artwork.price} - By ${artwork.artist?.name || artwork.artist}</p>`}
+                  >
+                    <img loading="lazy"
+                      src={artwork.imageUrl ? artwork.imageUrl.replace('/upload/', '/upload/q_auto,f_auto,w_800/') : artwork.images?.[0]?.replace('/upload/', '/upload/q_auto,f_auto,w_800/')}
+                      alt={artwork.title}
+                      className="w-full h-64 object-cover"
+                    />
+                  </a>
                   <div className="p-6">
                     <h3 className="text-xl font-semibold mb-2 text-artbloom-charcoal">
                       {artwork.title}
                     </h3>
                     <p className="text-artbloom-charcoal/70 text-sm mb-4">
-                      By {artwork.artist}
+                      By {artwork.artist?.name || 'Unknown Artist'}
                     </p>
                     <div className="flex justify-between items-center">
                       <span className="font-semibold text-artbloom-gold">
                         ${artwork.price}
                       </span>
-                      <button className="px-3 py-1 text-sm bg-artbloom-gold/90 text-white rounded hover:bg-artbloom-gold transition-colors">
+                      <Link 
+                        to={`/artwork/${artwork._id}`}
+                        className="px-3 py-1 text-sm bg-artbloom-gold/90 text-white rounded hover:bg-artbloom-gold transition-colors"
+                      >
                         View Details
-                      </button>
+                      </Link>
                     </div>
                   </div>
                 </div>
               ))}
-            </div>
+            </LightGallery>
           )}
 
           <div className="text-center mt-12">
@@ -181,7 +205,7 @@ const Index = () => {
                   "{testimonial.quote}"
                 </p>
                 <div className="flex items-center">
-                  <img 
+                  <img loading="lazy" 
                     src={testimonial.image} 
                     alt={testimonial.name}
                     className="h-12 w-12 rounded-full object-cover mr-4"
@@ -201,28 +225,29 @@ const Index = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 px-4 bg-white">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-artbloom-charcoal mb-6">
-            Ready to Start Your Creative Journey?
-          </h2>
-          <p className="text-lg text-artbloom-charcoal/80 mb-8 max-w-2xl mx-auto">
-            Join thousands of artists who have found their creative home at ArtBloom. Sign up today and unleash your artistic potential.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="px-8 py-3 bg-artbloom-gold text-white font-medium rounded-md shadow-lg hover:bg-artbloom-gold/90 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
-              Sign Up for Free
-            </button>
-            <button className="px-8 py-3 bg-white text-artbloom-brown border border-artbloom-brown/30 font-medium rounded-md shadow hover:bg-artbloom-brown/5 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
-              Learn More
-            </button>
+      {/* CTA Section - Hidden if logged in */}
+      {!isAuthenticated && (
+        <section className="py-20 px-4 bg-white">
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-artbloom-charcoal mb-6">
+              Ready to Start Your Creative Journey?
+            </h2>
+            <p className="text-lg text-artbloom-charcoal/80 mb-8 max-w-2xl mx-auto">
+              Join thousands of artists who have found their creative home at ArtBloom. Sign up today and unleash your artistic potential.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <button className="px-8 py-3 bg-artbloom-gold text-white font-medium rounded-md shadow-lg hover:bg-artbloom-gold/90 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+                Sign Up for Free
+              </button>
+              <button className="px-8 py-3 bg-white text-artbloom-brown border border-artbloom-brown/30 font-medium rounded-md shadow hover:bg-artbloom-brown/5 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+                Learn More
+              </button>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
-      <Footer />
-    </div>
+      </div>
   );
 };
 

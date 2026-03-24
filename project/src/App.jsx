@@ -3,6 +3,8 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { CartProvider } from "@/contexts/CartContext";
 import Index from "./pages/Index";
@@ -11,11 +13,16 @@ import Sell from "./pages/Sell";
 import Login from "./pages/Login";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
-import ArtistUpload from "./pages/ArtistUpload";
+
 import NotFound from "./pages/NotFound";
 import ProfilePage from "@/pages/ProfilePage";
-import Dashboard from "@/pages/DashBoard";
 
+import ArtworkDetail from "@/pages/ArtworkDetail";
+import Favorites from "@/pages/Favorites";
+import Orders from "@/pages/Orders";
+import EditArtwork from "@/pages/EditArtwork";
+import Terms from "@/pages/Terms";
+import Privacy from "@/pages/Privacy";
 
 const queryClient = new QueryClient();
 
@@ -27,18 +34,29 @@ const App = () => (
           <TooltipProvider>
           <Toaster />
           <Sonner />
-          <Routes>
+          <div className="min-h-screen flex flex-col">
+            <Navbar />
+            <main className="flex-grow">
+            <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/discover" element={<Discover />} />
             <Route path="/sell" element={<Sell />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/dashboard" element={<ProfilePage />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/checkout" element={<Checkout />} />
-            <Route path="/artist-upload" element={<ArtistUpload />} />
+            <Route path="/artwork/:id" element={<ArtworkDetail />} />
+            <Route path="/artwork/:id/edit" element={<EditArtwork />} />
+            <Route path="/favorites" element={<Favorites />} />
+            <Route path="/orders" element={<Orders />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/privacy" element={<Privacy />} />
             <Route path="*" element={<NotFound />} />
             <Route path="/profile" element={<ProfilePage />} />
           </Routes>
+            </main>
+            <Footer />
+          </div>
         </TooltipProvider>
         </CartProvider>
       </AuthProvider>

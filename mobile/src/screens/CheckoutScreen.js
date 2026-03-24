@@ -146,8 +146,8 @@ const CheckoutScreen = ({ route }) => {
                                 <Text className="font-bold text-artbloom-charcoal text-base capitalize">{selectedAddress.label}</Text>
                             </View>
                             {selectedAddress.isDefault && (
-                                <View className="bg-green-100 px-2 py-0.5 rounded">
-                                    <Text className="text-green-700 text-xs font-bold">Default</Text>
+                                <View className="bg-artbloom-gold/20 px-2 py-0.5 rounded">
+                                    <Text className="text-artbloom-gold text-xs font-bold">Default</Text>
                                 </View>
                             )}
                         </View>

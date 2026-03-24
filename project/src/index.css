@@ -12,7 +12,7 @@
     --foreground: 30 10% 22%;
 
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 100%;
+    --card-foreground: 30 10% 22%;
 
     --popover: 0 0% 100%;
     --popover-foreground: 30 10% 22%;
@@ -164,3 +164,101 @@
 .text-shadow-sm {
   text-shadow: 0 1px 2px rgba(0,0,0,0.3);
 }
+
+/* Deep Dark & Neon Purple Enhancements */
+.dark body, 
+.dark [class~="bg-artbloom-cream"], 
+.dark [class~="bg-artbloom-white"],
+.dark [class~="bg-[#F9F6F0]"],
+.dark [class~="bg-[#FAFAFA]"],
+.dark [class~="bg-gray-50"] {
+  background-color: #050505 !important;
+  color: #F8FAFC !important;
+}
+
+.dark [class~="bg-white"], 
+.dark [class*="bg-white/"],
+.dark .glass-card {
+  background-color: #111111 !important;
+  border-color: #2a2a2a !important;
+  color: #F8FAFC !important;
+}
+
+.dark [class~="bg-artbloom-brown/90"] {
+  background-color: #0a0a0a !important;
+  border-top: 1px solid #b026ff !important;
+}
+
+.dark [class~="bg-gray-50/30"],
+.dark [class~="bg-gray-50/50"],
+.dark [class~="bg-gray-50/80"] {
+  background-color: #0a0a0a !important;
+  border-color: #2a2a2a !important;
+}
+
+.dark [class*="from-artbloom-"],
+.dark [class*="to-artbloom-"] {
+  --tw-gradient-from: #111111 !important;
+  --tw-gradient-to: #050505 !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+}
+
+.dark [class~="text-artbloom-charcoal"], 
+.dark [class~="text-gray-900"], 
+.dark [class~="text-gray-800"], 
+.dark [class~="text-gray-700"] {
+  color: #e2e8f0 !important;
+}
+
+.dark [class*="text-artbloom-charcoal/"],
+.dark [class*="text-gray-900/"] {
+  color: #a1a1aa !important;
+}
+
+.dark [class~="text-gray-600"], 
+.dark [class~="text-gray-500"] {
+  color: #94a3b8 !important;
+}
+
+.dark [class~="bg-orange-500"], 
+.dark [class~="bg-artbloom-peach"], 
+.dark [class~="bg-orange-50"],
+.dark [class*="bg-orange-50/"], 
+.dark [class~="bg-orange-100"] {
+  background-color: #b026ff !important;
+  color: white !important;
+  border-color: #b026ff !important;
+}
+
+.dark [class~="hover:bg-orange-600"]:hover, 
+.dark [class~="hover:bg-artbloom-peach/80"]:hover {
+  background-color: #d175ff !important;
+}
+
+.dark [class~="text-orange-600"], 
+.dark [class~="text-orange-500"], 
+.dark [class~="text-orange-700"], 
+.dark [class~="text-artbloom-peach"] {
+  color: #d175ff !important;
+}
+
+.dark [class~="border-gray-100"], 
+.dark [class~="border-gray-200"], 
+.dark [class~="border-gray-300"] {
+  border-color: #2a2a2a !important;
+}
+
+.dark [class~="border-t-orange-500"], 
+.dark [class~="border-orange-100"] {
+  border-color: #b026ff !important;
+}
+
+.dark input, 
+.dark textarea, 
+.dark select, 
+.dark [role="dialog"] {
+  background-color: #1a1a1a !important;
+  border-color: #333333 !important;
+  color: #ffffff !important;
+}
+

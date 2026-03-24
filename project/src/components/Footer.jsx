@@ -1,5 +1,6 @@
 import React from "react";
-import { Facebook, Twitter, Instagram, Youtube } from "lucide-react";
+import { Facebook, Twitter, Instagram, Youtube, Paintbrush } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -10,11 +11,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
           <div>
             <div className="flex items-center space-x-2 mb-4">
-              <img
-                src="/lovable-uploads/9338b940-6030-450a-b0bf-d771b2ed0641.png"
-                alt="ArtBloom Logo"
-                className="h-10 w-10 bg-white rounded-full p-1"
-              />
+              <Paintbrush className="h-8 w-8 text-artbloom-peach" />
               <span className="font-playfair text-2xl font-semibold">
                 ArtBloom
               </span>
@@ -54,44 +51,28 @@ const Footer = () => {
             <h3 className="font-semibold text-lg mb-4">Explore</h3>
             <ul className="space-y-2">
               <li>
-                <a
-                  href="#"
+                <Link
+                  to="/discover"
                   className="text-white/80 hover:text-white transition-colors"
                 >
                   Gallery
-                </a>
+                </Link>
               </li>
               <li>
-                <a
-                  href="#"
+                <Link
+                  to="/discover"
                   className="text-white/80 hover:text-white transition-colors"
                 >
                   Featured Artists
-                </a>
+                </Link>
               </li>
               <li>
-                <a
-                  href="#"
+                <Link
+                  to="/discover"
                   className="text-white/80 hover:text-white transition-colors"
                 >
                   Art Collections
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="text-white/80 hover:text-white transition-colors"
-                >
-                  Exhibitions
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="text-white/80 hover:text-white transition-colors"
-                >
-                  Art News
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -100,44 +81,20 @@ const Footer = () => {
             <h3 className="font-semibold text-lg mb-4">For Artists</h3>
             <ul className="space-y-2">
               <li>
-                <a
-                  href="#"
+                <Link
+                  to="/sell"
                   className="text-white/80 hover:text-white transition-colors"
                 >
                   Sell Your Art
-                </a>
+                </Link>
               </li>
               <li>
-                <a
-                  href="#"
+                <Link
+                  to="/profile"
                   className="text-white/80 hover:text-white transition-colors"
                 >
-                  Artist Resources
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="text-white/80 hover:text-white transition-colors"
-                >
-                  Pricing
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="text-white/80 hover:text-white transition-colors"
-                >
-                  Success Stories
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="text-white/80 hover:text-white transition-colors"
-                >
-                  Artist FAQ
-                </a>
+                  User Dashboard
+                </Link>
               </li>
             </ul>
           </div>
@@ -147,73 +104,50 @@ const Footer = () => {
             <ul className="space-y-2">
               <li>
                 <a
-                  href="#"
+                  href="mailto:support@artbloom.com"
                   className="text-white/80 hover:text-white transition-colors"
                 >
                   Contact Us
                 </a>
               </li>
               <li>
-                <a
-                  href="#"
+                <Link
+                  to="/privacy"
                   className="text-white/80 hover:text-white transition-colors"
                 >
                   Privacy Policy
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="text-white/80 hover:text-white transition-colors"
-                >
-                  Terms of Service
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="text-white/80 hover:text-white transition-colors"
-                >
-                  Return Policy
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="text-white/80 hover:text-white transition-colors"
-                >
-                  FAQ
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
         </div>
 
         <div className="border-t border-white/20 pt-6">
-          <div className="flex flex-col md:flex-row justify-between items-center">
+          <div className="flex flex-col md:flex-row justify-between items-center lg:pr-32">
             <p className="text-white/70 text-sm mb-4 md:mb-0">
               © {currentYear} ArtBloom. All rights reserved. | Unleashing
               Creativity, One Artwork at a Time
             </p>
             <div className="flex space-x-4">
-              <a
-                href="#"
+              <Link
+                to="/terms"
                 className="text-white/70 text-sm hover:text-white transition-colors"
               >
                 Terms of Service
-              </a>
-              <a
-                href="#"
+              </Link>
+              <Link
+                to="/privacy"
                 className="text-white/70 text-sm hover:text-white transition-colors"
               >
                 Privacy Policy 
-              </a>
-              <a
-                href="#"
-                className="text-white/70 text-sm hover:text-white transition-colors"
+              </Link>
+              <button 
+                onClick={() => document.documentElement.classList.toggle('dark')} 
+                className="flex items-center gap-2 border border-white/30 px-3 py-1 rounded-full text-white/80 hover:bg-white transition-colors hover:text-artbloom-charcoal text-sm ml-4"
               >
-                Contact Us
-              </a>
+                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+                 Toggle Dark Theme
+              </button>
             </div>
           </div>
         </div>

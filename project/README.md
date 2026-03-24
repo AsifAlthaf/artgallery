@@ -1,69 +1,343 @@
-# Welcome to your Lovable project
+# 🎨 Art Bloom / ArtGallery
 
-## Project info
+**Art Bloom (ArtGallery)** is a full-stack digital art marketplace and exhibition platform where artists can upload their artworks and customers can explore, discover, and purchase them seamlessly.
 
-**URL**: https://lovable.dev/projects/22fa7f02-9905-491d-90b7-4622c916e192
+The platform combines a **modern MERN stack architecture** with **mobile and web applications**, enabling users to browse art, follow artists, upload artwork, and complete purchases securely.
 
-## How can I edit this code?
+It integrates a **React + Tailwind frontend**, **Node.js + Express backend**, **MongoDB database**, **Cloudinary image hosting**, and **Firebase authentication** to deliver a scalable and responsive art marketplace.
 
-There are several ways of editing your application.
+---
 
-**Use Lovable**
+# 🚀 Key Features
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/22fa7f02-9905-491d-90b7-4622c916e192) and start prompting.
+## 👤 User Authentication & Authorization
 
-Changes made via Lovable will be committed automatically to this repo.
+* Firebase authentication for frontend login/signup
+* JWT-based authentication for backend API security
+* Role-based access control (User / Artist / Admin)
+* Secure protected routes using middleware
 
-**Use your preferred IDE**
+## 🎨 Artwork Management
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+* Artists can upload artwork with:
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+  * Title
+  * Description
+  * Price
+  * Image
+* Images stored securely using **Cloudinary**
+* Artworks retrieved through dedicated controllers and routes
 
-Follow these steps:
+## 🛒 Shopping Cart & Orders
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+* Add/remove artworks from cart
+* Secure checkout system
+* Order tracking and order history
+* Managed via **Order** and **CartItem** models
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+## 💳 Payment Integration
 
-# Step 3: Install the necessary dependencies.
-npm i
+* Backend payment services
+* Secure payment validation workflow
+* Controllers and services handling payment processing
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+## 📧 Email Notifications
+
+* Order confirmation emails
+* User update notifications
+* Implemented using **Nodemailer**
+
+## 🖥️ Frontend Experience
+
+* Responsive UI built with **React + Tailwind CSS**
+* Core pages include:
+
+  * Discover Art
+  * Artist Upload
+  * Sell Artwork
+  * Cart
+  * Checkout
+  * Login
+* Reusable UI components:
+
+  * Navbar
+  * Footer
+  * Hero Section
+  * Feature sections
+* Global state management using **React Context API**
+* Custom hooks for responsive UI and notifications
+
+---
+
+# 🧱 Tech Stack
+
+## Frontend (Web)
+
+* React (Vite)
+* Tailwind CSS
+* Context API
+* Firebase Authentication
+* Custom Hooks
+
+## Backend
+
+* Node.js
+* Express.js
+* MongoDB
+* Mongoose
+* JWT Authentication
+* Cloudinary (image hosting)
+* Nodemailer (email services)
+
+## Mobile Application
+
+* React Native (Expo)
+* Uses the same backend APIs as the web application
+
+---
+
+# 📂 Project Structure
+
+## Root Structure
+
+```
+artgallery/
+│
+├── backend/          # Node.js + Express backend
+├── project/          # React web application
+├── mobile/           # React Native mobile app
+│
+├── docs/             # Project documentation
+├── public/           # Static assets
+├── src/              # Core application source files
+│
+├── package.json
+└── README.md
+```
+
+---
+
+## Backend Structure (`/backend`)
+
+```
+backend/
+│
+├── config/        # Database and Cloudinary configuration
+├── controllers/   # Business logic for users, artworks, orders
+├── middleware/    # Auth middleware, error handling, uploads
+├── models/        # MongoDB schemas (User, Artwork, Order, CartItem)
+├── routes/        # API route definitions
+├── services/      # Email, payment and upload services
+├── utils/         # Utility helpers (token generation, validation)
+```
+
+---
+
+## Frontend Structure (`/project`)
+
+```
+project/
+│
+├── components/   # Reusable UI components
+├── contexts/     # Global state management
+├── firebase/     # Firebase configuration
+├── hooks/        # Custom React hooks
+├── pages/        # Application pages
+├── lib/          # Frontend utilities
+│
+├── App.jsx
+└── main.jsx
+```
+
+---
+
+# 📱 Application Screens
+
+### Authentication
+
+| Account Creation                                                                                         | Sign-in                                                                                                  | Terms & Conditions                                                                                       |
+| -------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| <img src="https://github.com/user-attachments/assets/654bc321-3e3d-4fa4-a433-47160a44ba79" width="250"/> | <img src="https://github.com/user-attachments/assets/4d1895ea-963b-4c8e-a535-3d9d3f3d4e36" width="250"/> | <img src="https://github.com/user-attachments/assets/88e7e5ab-ae45-4696-abe4-536e3a464017" width="250"/> |
+
+### Browsing
+
+| Home Page                                                                                                | Discover                                                                                                 | View Artwork                                                                                             |
+| -------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| <img src="https://github.com/user-attachments/assets/074a327c-230d-424c-af76-fded76ea69b1" width="250"/> | <img src="https://github.com/user-attachments/assets/bb70368e-343b-40e3-af16-ca2555726ac5" width="250"/> | <img src="https://github.com/user-attachments/assets/5290fe38-da63-4ef3-86c7-f76849d888bb" width="250"/> |
+
+### Selling & Buying
+
+| Upload Artwork                                                                                           | Cart                                                                                                     | Checkout                                                                                                 |
+| -------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| <img src="https://github.com/user-attachments/assets/10c7d012-009a-4cdd-89eb-223dbd06a16f" width="250"/> | <img src="https://github.com/user-attachments/assets/1f3eeab4-d8b4-489a-9838-45c337575744" width="250"/> | <img src="https://github.com/user-attachments/assets/f0933814-1c06-464a-a5bd-98e4ea5b66df" width="250"/> |
+
+### Profile
+
+<img src="https://github.com/user-attachments/assets/724da6a5-7585-49c8-988b-a3beb03ef153" width="250"/>
+
+---
+
+# ⚙️ Installation & Setup
+
+## 1️⃣ Clone Repository
+
+```
+git clone https://github.com/AsifAlthaf/artgallery.git
+cd artgallery
+```
+
+---
+
+## 2️⃣ Backend Setup
+
+```
+cd backend
+npm install
+```
+
+Create `.env`
+
+```
+MONGO_URI=your_mongodb_connection_string
+JWT_SECRET=your_jwt_secret
+CLOUDINARY_API_KEY=your_key
+CLOUDINARY_API_SECRET=your_secret
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+EMAIL_USER=your_email
+EMAIL_PASS=your_password
+```
+
+Run backend
+
+```
+npm start
+```
+
+or
+
+```
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+---
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## 3️⃣ Frontend Setup
 
-**Use GitHub Codespaces**
+```
+cd project
+npm install
+npm run dev
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+Open:
 
-## What technologies are used for this project?
+```
+http://localhost:5173
+```
 
-This project is built with .
+---
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## 4️⃣ Mobile Application
 
-## How can I deploy this project?
+```
+cd mobile
+npx expo start
+```
 
-Simply open [Lovable](https://lovable.dev/projects/22fa7f02-9905-491d-90b7-4622c916e192) and click on Share -> Publish.
+---
 
-## I want to use a custom domain - is that possible?
+# 🔗 MCP Server Configuration
 
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+This repository integrates **Model Context Protocol (MCP)** to stream documentation updates using an SSE server.
+
+```
+{
+  "servers": {
+    "artgallery Docs": {
+      "type": "sse",
+      "url": "https://gitmcp.io/AsifAlthaf/artgallery/tree/Update-1"
+    }
+  }
+}
+```
+
+This allows real-time streaming of project documentation.
+
+---
+
+# 🛠️ Using the Application
+
+### Mobile App
+
+Download APK:
+
+```
+https://expo.dev/accounts/asif_shaik/projects/artbloom-mobile/builds/57c5deee-7038-4569-9d10-c05f0bc29a75
+```
+
+Install the APK and create an account.
+
+### Backend (Render Deployment)
+
+```
+https://art-bloom.onrender.com
+```
+
+Open the backend URL once to wake up the server before using the app.
+
+---
+
+# 📖 Documentation
+
+All project documentation is available in the **docs/** folder and streamed via MCP integration.
+
+---
+
+# 🔮 Future Enhancements
+
+* Admin dashboard for monitoring users, artworks, and orders
+* Artwork review and rating system
+* Advanced search and filtering (category, price, artist)
+* Multi-payment gateway support
+* CI/CD deployment pipeline
+* Machine learning integration for **digital image security and monitoring**
+
+---
+
+# 🤝 Contributing
+
+1. Fork the repository
+2. Create a branch
+
+```
+feature/your-feature
+```
+
+3. Commit changes
+4. Push to your fork
+5. Open a Pull Request
+
+---
+
+# 📜 License
+
+This project is licensed under the **MIT License**.
+You are free to use, modify, and distribute with attribution.
+
+---
+
+# 👨‍💻 Contributors
+
+**Asif Althaf**
+BTech, SRM University
+Passionate about AI-powered platforms and scalable solutions
+
+**Rohini Sai**
+BTech, SRM University
+
+GitHub
+
+* https://github.com/AsifAlthaf
+* https://github.com/Rohinisai04
+
+---

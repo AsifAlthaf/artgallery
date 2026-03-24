@@ -70,8 +70,8 @@ const AddressScreen = ({ route }) => {
                 </View>
             </View>
             {item.isDefault && (
-                <View className="bg-green-100 px-2 py-1 rounded-full mr-2">
-                    <Text className="text-green-600 text-xs font-bold">Default</Text>
+                <View className="bg-artbloom-gold/20 px-2 py-1 rounded-full mr-2">
+                    <Text className="text-artbloom-gold text-xs font-bold">Default</Text>
                 </View>
             )}
             {selectMode && (

@@ -23,7 +23,7 @@ const OrderSuccessScreen = () => {
     return (
         <SafeAreaView className="flex-1 bg-white justify-center items-center p-6">
             <View className="items-center mb-8">
-                <View className="bg-green-100 p-6 rounded-full mb-6">
+                <View className="bg-artbloom-gold/20 p-6 rounded-full mb-6">
                     <CheckCircle size={64} color="#10B981" />
                 </View>
                 <Text className="text-3xl font-playfair font-bold text-artbloom-charcoal mb-2 text-center">Woohoo!</Text>

@@ -4,8 +4,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Button } from '@/components/ui/button';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
 import axios from 'axios';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from "@/components/ui/use-toast"; // Assuming Shadcn toast exists or use native
@@ -21,12 +19,21 @@ const artCategories = [
   { id: 'illustration', name: 'Illustrations' },
 ];
 
+const optimizeCloudinaryUrl = (url, width = 800) => {
+    if (!url) return url;
+    if (url.includes('cloudinary.com') && !url.includes('/upload/q_auto')) {
+        return url.replace('/upload/', `/upload/q_auto,f_auto,w_${width}/`);
+    }
+    return url;
+};
+
 const Discover = () => {
   const { currentUser } = useAuth();
   const [activeCategory, setActiveCategory] = useState('all');
   const [viewMode, setViewMode] = useState('grid');
   const [artworks, setArtworks] = useState([]);
   const [favorites, setFavorites] = useState([]);
+  const [featuredArtists, setFeaturedArtists] = useState([]);
   const [loading, setLoading] = useState(true);
   // const { toast } = useToast(); // If available
   
@@ -46,11 +53,21 @@ const Discover = () => {
   const isItemInCart = (id) => cartItems.some(item => item._id === id || item.id === id);
 
   useEffect(() => {
+    fetchFeaturedArtists();
     fetchArtworks();
     if (currentUser) {
         fetchFavorites();
     }
   }, [currentUser]);
+
+  const fetchFeaturedArtists = async () => {
+      try {
+          const { data } = await axios.get('/api/users/public');
+          setFeaturedArtists(Array.isArray(data) ? data : []);
+      } catch (error) {
+          console.error("Error fetching featured artists:", error);
+      }
+  };
 
   const fetchArtworks = async () => {
       try {
@@ -98,8 +115,6 @@ const Discover = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-artbloom-cream">
-      <Navbar />
-      
       <main className="flex-grow pt-32 pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Hero Section */}
@@ -126,13 +141,7 @@ const Discover = () => {
             </div>
             
             <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-              <Tabs defaultValue="categories" className="w-full sm:w-auto">
-                <TabsList className="w-full sm:w-auto bg-white/60">
-                  <TabsTrigger value="categories">Categories</TabsTrigger>
-                  <TabsTrigger value="artists">Artists</TabsTrigger>
-                  <TabsTrigger value="styles">Styles</TabsTrigger>
-                </TabsList>
-              </Tabs>
+              <div className="w-full sm:w-auto"></div>
               
               <div className="flex items-center gap-3">
                 <Button variant="outline" size="sm" className="flex items-center gap-2 bg-white/60">
@@ -161,6 +170,24 @@ const Discover = () => {
             </div>
           </div>
           
+          {/* Featured Artists */}
+          {featuredArtists.length > 0 && activeCategory === 'all' && (
+            <div className="mb-10">
+              <h2 className="text-xl md:text-2xl font-playfair font-bold text-artbloom-charcoal mb-6">Featured Artists</h2>
+              <div className="flex overflow-x-auto gap-5 pb-4 custom-scrollbar">
+                {featuredArtists.map(artist => (
+                  <div key={artist._id} className="flex flex-col items-center flex-shrink-0 w-24 cursor-pointer group hover:opacity-80 transition-opacity">
+                    <div className="w-20 h-20 rounded-full border-2 border-orange-500 p-0.5 mb-2 shadow-sm relative overflow-hidden bg-white">
+                      <img loading="lazy" src={optimizeCloudinaryUrl(artist.imageUrl || artist.profilePicture || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png", 200)} alt={artist.name} className="w-full h-full rounded-full object-cover" />
+                    </div>
+                    <span className="text-sm font-bold text-gray-900 text-center truncate w-full">{artist.name}</span>
+                    <span className="text-xs text-orange-500 font-medium truncate w-full text-center">@{artist.username}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          
           {/* Categories */}
           <div className="mb-10">
             <div className="flex flex-wrap gap-2 justify-center">
@@ -168,10 +195,10 @@ const Discover = () => {
                 <button
                   key={category.id}
                   onClick={() => setActiveCategory(category.id)}
-                  className={`px-4 py-2 rounded-full transition-all ${
+                  className={`px-4 py-2 rounded-full font-medium transition-all ${
                     activeCategory === category.id 
-                      ? 'bg-artbloom-peach text-white' 
-                      : 'bg-white/60 hover:bg-white text-artbloom-charcoal'
+                      ? 'bg-orange-500 text-white shadow-md' 
+                      : 'bg-white border border-gray-200 hover:border-orange-300 text-gray-700'
                   }`}
                 >
                   {category.name}
@@ -183,39 +210,32 @@ const Discover = () => {
           {/* Artwork Grid */}
           <div className={`grid gap-6 ${viewMode === 'grid' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4' : 'grid-cols-1'}`}>
             {filteredArtworks.map(artwork => (
-              <Card key={artwork._id} className={`overflow-hidden hover-lift transition-all relative group ${viewMode === 'list' ? 'flex flex-row' : ''}`}>
+              <Card key={artwork._id} onClick={() => navigate(`/artwork/${artwork._id}`)} className={`overflow-hidden hover-lift transition-all relative group cursor-pointer border-transparent shadow-sm hover:shadow-md ${viewMode === 'list' ? 'flex flex-row' : ''}`}>
                  {/* Favorite Button */}
                  <button 
                     onClick={(e) => toggleFavorite(e, artwork._id)}
-                    className="absolute top-3 right-3 z-10 p-2 bg-white/90 backdrop-blur-sm rounded-full shadow-sm hover:bg-red-50 transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
+                    className="absolute top-3 right-3 z-10 p-2.5 bg-white/90 backdrop-blur-md rounded-full shadow-sm hover:scale-110 transition-transform opacity-0 group-hover:opacity-100 focus:opacity-100"
                     title={favorites.includes(artwork._id) ? "Remove from favorites" : "Add to favorites"}
                 >
                     <Heart 
-                        className={`w-5 h-5 transition-colors ${favorites.includes(artwork._id) ? 'text-red-500 fill-red-500' : 'text-gray-500'}`} 
+                        className={`w-4 h-4 transition-colors ${favorites.includes(artwork._id) ? 'text-red-500 fill-red-500' : 'text-gray-500'}`} 
                     />
                 </button>
 
-                <div className={viewMode === 'list' ? 'w-1/3' : ''}>
-                  <img 
-                    src={artwork.imageUrl} 
+                <div className={viewMode === 'list' ? 'w-1/3' : 'aspect-[4/5] bg-gray-50 overflow-hidden rounded-t-xl'}>
+                  <img loading="lazy" 
+                    src={optimizeCloudinaryUrl(artwork.imageUrl, 500)} 
                     alt={artwork.title} 
-                    className="w-full h-64 object-cover"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                   />
                 </div>
                 <CardContent className={`p-4 ${viewMode === 'list' ? 'w-2/3' : ''}`}>
-                  <h3 className="font-playfair text-lg font-semibold mb-1">{artwork.title}</h3>
-                  <p className="text-artbloom-charcoal/70 text-sm">{artwork.artist?.name || "Unknown Artist"}</p>
+                  <h3 className="font-bold text-gray-900 text-lg mb-0.5 truncate">{artwork.title || "Untitled"}</h3>
+                  <p className="text-gray-500 text-sm mb-4">by {artwork.artist?.name || artwork.artist?.username || "Unknown"}</p>
 
-                  <div className="flex justify-between items-center mt-3">
-                    <span className="font-medium">${artwork.price}</span>
-                    <Button 
-                        variant={isItemInCart(artwork._id) ? "default" : "outline"}
-                        size="sm" 
-                        className={`text-xs ${isItemInCart(artwork._id) ? 'bg-green-600 hover:bg-green-700' : ''}`}
-                        onClick={(e) => handleCartAction(e, artwork)}
-                    >
-                      {isItemInCart(artwork._id) ? "Go to Cart" : "Add to Cart"}
-                    </Button>
+                  <div className="flex justify-between items-center mt-auto">
+                    <span className="font-bold text-orange-500 text-lg">${artwork.price || 0}</span>
+                    <span className="px-3 py-1 bg-[#F5F5F5] text-gray-600 text-xs font-semibold rounded-md capitalize">{artwork.category || "Art"}</span>
                   </div>
                 </CardContent>
               </Card>
@@ -226,15 +246,14 @@ const Discover = () => {
           
           {/* Load More Button */}
           <div className="flex justify-center mt-12">
-            <Button variant="outline" className="border-artbloom-peach text-artbloom-peach hover:bg-artbloom-peach hover:text-white">
+            <Button variant="outline" className="border-orange-500 text-orange-600 font-bold hover:bg-orange-500 hover:text-white">
               Load More Artworks
             </Button>
           </div>
         </div>
       </main>
       
-      <Footer />
-    </div>
+      </div>
   );
 };
 

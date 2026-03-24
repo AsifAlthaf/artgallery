@@ -11,8 +11,9 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
+import axios from 'axios';
+import { useCart } from '@/contexts/CartContext';
+import { useAuth } from '@/contexts/AuthContext';
 
 const checkoutSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -32,6 +33,8 @@ const checkoutSchema = z.object({
 
 const Checkout = () => {
   const navigate = useNavigate();
+  const { cartItems, getCartTotal, clearCart } = useCart();
+  const { currentUser } = useAuth();
   
   const form = useForm({
     resolver: zodResolver(checkoutSchema),
@@ -52,15 +55,54 @@ const Checkout = () => {
     },
   });
 
-  const subtotal = 499.99;
-  const shipping = 29.99;
-  const tax = 52.50;
+  const subtotal = getCartTotal() || 0;
+  const shipping = subtotal > 0 ? 5.00 : 0;
+  const tax = subtotal * 0.08;
   const total = subtotal + shipping + tax;
 
-  const onSubmit = (values) => {
-    console.log('Checkout submitted:', values);
-    toast.success("Order placed successfully! You will receive a confirmation email shortly.");
-    navigate('/');
+  const onSubmit = async (values) => {
+    if (cartItems.length === 0) {
+        toast.error("Your cart is empty!");
+        return;
+    }
+    
+    try {
+        const orderData = {
+            orderItems: cartItems.map(item => ({
+                name: item.title || item.name,
+                qty: item.quantity,
+                image: item.imageUrl || item.image || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png",
+                price: item.price,
+                artwork: item._id || item.id
+            })),
+            shippingAddress: {
+                address: values.address,
+                city: values.city,
+                postalCode: values.zipCode,
+                country: values.country
+            },
+            paymentMethod: values.paymentMethod === 'credit-card' ? 'Credit Card' : values.paymentMethod,
+            itemsPrice: subtotal,
+            taxPrice: tax,
+            shippingPrice: shipping,
+            totalPrice: total,
+        };
+
+        const config = {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem('token')}`,
+            },
+        };
+
+        await axios.post('/api/orders', orderData, config);
+        
+        toast.success("Order placed successfully!");
+        clearCart();
+        navigate('/profile');
+    } catch (error) {
+        console.error("Checkout error:", error);
+        toast.error(error.response?.data?.message || "Failed to place order.");
+    }
   };
 
   const generateDeliveryDates = () => {
@@ -84,8 +126,6 @@ const Checkout = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-artbloom-cream">
-      <Navbar />
-      
       <main className="flex-grow pt-32 pb-16">
         <div className="max-w-4xl mx-auto px-4">
           <h1 className="text-3xl font-playfair font-bold text-center mb-8">Checkout</h1>
@@ -352,7 +392,7 @@ const Checkout = () => {
                     </CardContent>
                   </Card>
 
-                  <Button type="submit" className="w-full bg-artbloom-peach hover:bg-artbloom-peach/80 text-lg py-6">
+                  <Button type="submit" className="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold text-lg py-6 shadow-md transition-all">
                     Place Order
                   </Button>
                 </form>
@@ -393,8 +433,7 @@ const Checkout = () => {
         </div>
       </main>
       
-      <Footer />
-    </div>
+      </div>
   );
 };
 

@@ -78,7 +78,7 @@ const OrdersScreen = () => {
             
             <View className="mt-2 pt-2 border-t border-gray-50 flex-row justify-between">
                  <Text className="text-xs text-gray-400">Status</Text>
-                 <Text className={`text-xs font-bold ${item.isDelivered ? 'text-green-500' : 'text-blue-500'}`}>
+                 <Text className={`text-xs font-bold ${item.isDelivered ? 'text-artbloom-gold' : 'text-blue-500'}`}>
                     {item.isDelivered ? 'Delivered' : 'Processing'}
                  </Text>
             </View>

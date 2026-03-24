@@ -2,8 +2,6 @@
 import React from "react";
 import { useLocation, Link } from "react-router-dom";
 import { useEffect } from "react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import { ArrowLeft } from "lucide-react";
 
 const NotFound = () => {
@@ -18,7 +16,6 @@ const NotFound = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
       <div className="flex-grow flex items-center justify-center bg-artbloom-cream px-4">
         <div className="max-w-md w-full glass-card rounded-xl p-8 text-center">
           <div className="inline-flex items-center justify-center w-20 h-20 bg-artbloom-peach/50 rounded-full mb-6">
@@ -38,8 +35,7 @@ const NotFound = () => {
           </Link>
         </div>
       </div>
-      <Footer />
-    </div>
+      </div>
   );
 };
 

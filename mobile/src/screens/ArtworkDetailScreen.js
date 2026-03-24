@@ -195,7 +195,7 @@ const ArtworkDetailScreen = () => {
                         </TouchableOpacity>
 
                         <TouchableOpacity 
-                            className={`flex-[1.2] flex-row items-center justify-center py-4 rounded-xl active:opacity-90 ${isInCart ? 'bg-green-500' : 'bg-artbloom-peach'}`}
+                            className={`flex-[1.2] flex-row items-center justify-center py-4 rounded-xl active:opacity-90 ${isInCart ? 'bg-artbloom-gold' : 'bg-artbloom-peach'}`}
                             onPress={handleCartAction}
                         >
                             <ShoppingCart color="white" size={20} className="mr-2" />

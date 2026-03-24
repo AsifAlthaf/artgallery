@@ -6,13 +6,12 @@ import { createRequire } from "module";
 
 const require = createRequire(import.meta.url);
 
-let serviceAccount;
+let serviceAccount = null;
 try {
   if (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_PRIVATE_KEY && process.env.FIREBASE_CLIENT_EMAIL) {
     // Render Deployment
     serviceAccount = {
       project_id: process.env.FIREBASE_PROJECT_ID,
-      // Render dashboard inputs escape newlines, this converts them back to real newlines for Firebase PEM parsing
       private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
       client_email: process.env.FIREBASE_CLIENT_EMAIL,
     };
@@ -21,12 +20,11 @@ try {
     serviceAccount = require("../serviceAccountKey.json");
   }
 } catch (error) {
-  console.error("Firebase Service Account Setup Error:", error.message);
-  throw new Error("Missing Firebase Credentials! Set FIREBASE_SERVICE_ACCOUNT env var or provide individual FIREBASE_ variables or 'backend/serviceAccountKey.json'.");
+  console.warn("⚠️ Firebase Service Account missing. Google Sign-in verification will fail locally, but Email/Password JWT will still work.");
 }
 
 // Initialize Firebase Admin SDK
-if (!admin.apps.length) {
+if (serviceAccount && !admin.apps.length) {
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
   });

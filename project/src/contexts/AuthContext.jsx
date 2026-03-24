@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { signOut } from 'firebase/auth';
 import { auth } from '@/firebase/firebase-config';
 
 const AuthContext = createContext();
@@ -17,42 +17,45 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // Login function that accepts Firebase user
-  const login = (user) => {
-    setCurrentUser(user);
-    setIsAuthenticated(true);
-  };
-
-  // Logout function with Firebase signOut
-  const logout = async () => {
-    try {
-      await signOut(auth);
-      setCurrentUser(null);
-      setIsAuthenticated(false);
-    } catch (error) {
-      console.error('Logout error:', error);
-      throw error;
-    }
-  };
-
-  // Listen to authentication state changes
+  // Initialize auth state from localStorage (matches mobile's checkLoginStatus)
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        // User is signed in
-        setCurrentUser(user);
+    try {
+      const userInfoStr = localStorage.getItem("userInfo");
+      const token = localStorage.getItem("token");
+      
+      if (userInfoStr && token) {
+        const parsedUser = JSON.parse(userInfoStr);
+        setCurrentUser(parsedUser);
         setIsAuthenticated(true);
       } else {
-        // User is signed out
-        setCurrentUser(null);
-        setIsAuthenticated(false);
+        localStorage.removeItem("userInfo");
+        localStorage.removeItem("token");
       }
+    } catch (error) {
+      console.error("Error assessing auth state:", error);
+    } finally {
       setLoading(false);
-    });
-
-    // Cleanup subscription on unmount
-    return () => unsubscribe();
+    }
   }, []);
+
+  const login = (user, token) => {
+    setCurrentUser(user);
+    setIsAuthenticated(true);
+    localStorage.setItem("userInfo", JSON.stringify(user));
+    if (token) localStorage.setItem("token", token);
+  };
+
+  const logout = async () => {
+    try {
+      await signOut(auth); // ensure firebase is also cleared if they used google
+    } catch(err) {
+      console.log('Firebase logout ignored')
+    }
+    setCurrentUser(null);
+    setIsAuthenticated(false);
+    localStorage.removeItem("userInfo");
+    localStorage.removeItem("token");
+  };
 
   const value = {
     currentUser,
@@ -60,11 +63,10 @@ export const AuthProvider = ({ children }) => {
     loading,
     login,
     logout,
-    // Additional user info helpers
     userEmail: currentUser?.email,
-    userName: currentUser?.displayName,
-    userPhoto: currentUser?.photoURL,
-    userId: currentUser?.uid,
+    userName: currentUser?.name || currentUser?.displayName,
+    userPhoto: currentUser?.imageUrl || currentUser?.photoURL,
+    userId: currentUser?._id || currentUser?.uid,
   };
 
   return (

@@ -10,12 +10,11 @@ import { toast } from 'sonner';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
+import axios from 'axios';
 
 // Firebase imports
-import { signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '@/firebase/firebase-config'; // You'll need to create this config file
+import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { auth } from '@/firebase/firebase-config';
 
 // Form validation schemas
 const loginSchema = z.object({
@@ -64,16 +63,19 @@ const Login = () => {
   const onLoginSubmit = async (values) => {
     setLoading(true);
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
-      const user = userCredential.user;
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const { data } = await axios.post(`${API_URL}/auth/login`, {
+        email: values.email,
+        password: values.password
+      });
       
-      // Update your auth context with user data
-      login(user);
+      // Update your auth context with user data and token
+      login(data, data.token);
       toast.success("Login successful!");
       navigate('/');
     } catch (error) {
-      console.error('Login error:', error);
-      toast.error(error.message || "Login failed!");
+      console.error('Login error:', error.response?.data || error.message);
+      toast.error(error.response?.data?.message || "Login failed!");
     } finally {
       setLoading(false);
     }
@@ -82,17 +84,20 @@ const Login = () => {
   const onRegisterSubmit = async (values) => {
     setLoading(true);
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
-      const user = userCredential.user;
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const { data } = await axios.post(`${API_URL}/auth/register`, {
+        name: values.name,
+        email: values.email,
+        password: values.password,
+        username: values.email.split('@')[0]
+      });
       
-      // You might want to update the user's display name here
-      // await updateProfile(user, { displayName: values.name });
-      
+      login(data, data.token);
       toast.success("Account created successfully!");
-      setIsLogin(true);
+      navigate('/');
     } catch (error) {
-      console.error('Registration error:', error);
-      toast.error(error.message || "Registration failed!");
+      console.error('Registration error:', error.response?.data || error.message);
+      toast.error(error.response?.data?.message || "Registration failed!");
     } finally {
       setLoading(false);
     }
@@ -104,20 +109,25 @@ const Login = () => {
     
     try {
       const result = await signInWithPopup(auth, provider);
-      const user = result.user;
+      const firebaseUser = result.user;
       
-      // Update your auth context with user data
-      login(user);
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const { data } = await axios.post(`${API_URL}/auth/google`, {
+         name: firebaseUser.displayName,
+         email: firebaseUser.email,
+         googleId: firebaseUser.uid,
+         imageUrl: firebaseUser.photoURL
+      });
+      
+      login(data, data.token);
       toast.success("Google Sign In successful!");
       navigate('/');
     } catch (error) {
       console.error('Google Sign In error:', error);
       if (error.code === 'auth/popup-closed-by-user') {
         toast.error("Sign in was cancelled");
-      } else if (error.code === 'auth/popup-blocked') {
-        toast.error("Popup was blocked. Please allow popups and try again.");
       } else {
-        toast.error(error.message || "Google Sign In failed!");
+        toast.error(error.response?.data?.message || error.message || "Google Sign In failed!");
       }
     } finally {
       setLoading(false);
@@ -126,16 +136,14 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-artbloom-cream">
-      <Navbar />
-      
       <main className="flex-grow pt-32 pb-16">
         <div className="max-w-md mx-auto px-4">
           <Card className="glass-card">
             <CardHeader className="space-y-1">
-              <CardTitle className="text-2xl font-playfair text-center">
+              <CardTitle className="text-2xl font-playfair text-center text-artbloom-charcoal">
                 {isLogin ? "Welcome back" : "Create an account"}
               </CardTitle>
-              <CardDescription className="text-center">
+              <CardDescription className="text-center text-artbloom-charcoal/80">
                 {isLogin 
                   ? "Enter your credentials to sign in to your account" 
                   : "Fill in your details to create a new account"}
@@ -147,7 +155,7 @@ const Login = () => {
                 <Button 
                   onClick={handleGoogleSignIn}
                   variant="outline" 
-                  className="w-full flex items-center justify-center gap-2"
+                  className="w-full flex items-center justify-center gap-2 font-bold text-gray-700 hover:bg-gray-50 border-gray-200 shadow-sm"
                   disabled={loading}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
@@ -179,9 +187,9 @@ const Login = () => {
                       name="email"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Email</FormLabel>
+                          <FormLabel className="text-artbloom-charcoal font-semibold">Email</FormLabel>
                           <FormControl>
-                            <Input placeholder="your.email@example.com" type="email" {...field} />
+                            <Input placeholder="your.email@example.com" type="email" className="bg-white border-gray-300 text-artbloom-charcoal placeholder:text-gray-400" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -192,9 +200,9 @@ const Login = () => {
                       name="password"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Password</FormLabel>
+                          <FormLabel className="text-artbloom-charcoal font-semibold">Password</FormLabel>
                           <FormControl>
-                            <Input placeholder="••••••••" type="password" {...field} />
+                            <Input placeholder="••••••••" type="password" className="bg-white border-gray-300 text-artbloom-charcoal placeholder:text-gray-400" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -212,19 +220,19 @@ const Login = () => {
                                 onCheckedChange={field.onChange}
                               />
                             </FormControl>
-                            <FormLabel className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                            <FormLabel className="text-sm font-semibold leading-none text-artbloom-charcoal peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                               Remember me
                             </FormLabel>
                           </FormItem>
                         )}
                       />
-                      <Link to="#" className="text-sm font-medium text-artbloom-peach hover:underline">
+                      <Link to="#" className="text-sm font-bold text-orange-600 hover:text-orange-700 hover:underline">
                         Forgot password?
                       </Link>
                     </div>
                     <Button 
                       type="submit" 
-                      className="w-full bg-artbloom-peach hover:bg-artbloom-peach/80"
+                      className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold shadow-md"
                       disabled={loading}
                     >
                       {loading ? "Signing in..." : "Sign In"}
@@ -239,9 +247,9 @@ const Login = () => {
                       name="name"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Name</FormLabel>
+                          <FormLabel className="text-artbloom-charcoal font-semibold">Name</FormLabel>
                           <FormControl>
-                            <Input placeholder="John Doe" {...field} />
+                            <Input placeholder="John Doe" className="bg-white border-gray-300 text-artbloom-charcoal placeholder:text-gray-400" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -252,9 +260,9 @@ const Login = () => {
                       name="email"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Email</FormLabel>
+                          <FormLabel className="text-artbloom-charcoal font-semibold">Email</FormLabel>
                           <FormControl>
-                            <Input placeholder="your.email@example.com" type="email" {...field} />
+                            <Input placeholder="your.email@example.com" type="email" className="bg-white border-gray-300 text-artbloom-charcoal placeholder:text-gray-400" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -265,9 +273,9 @@ const Login = () => {
                       name="password"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Password</FormLabel>
+                          <FormLabel className="text-artbloom-charcoal font-semibold">Password</FormLabel>
                           <FormControl>
-                            <Input placeholder="••••••••" type="password" {...field} />
+                            <Input placeholder="••••••••" type="password" className="bg-white border-gray-300 text-artbloom-charcoal placeholder:text-gray-400" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -278,9 +286,9 @@ const Login = () => {
                       name="confirmPassword"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Confirm Password</FormLabel>
+                          <FormLabel className="text-artbloom-charcoal font-semibold">Confirm Password</FormLabel>
                           <FormControl>
-                            <Input placeholder="••••••••" type="password" {...field} />
+                            <Input placeholder="••••••••" type="password" className="bg-white border-gray-300 text-artbloom-charcoal placeholder:text-gray-400" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -288,7 +296,7 @@ const Login = () => {
                     />
                     <Button 
                       type="submit" 
-                      className="w-full bg-artbloom-peach hover:bg-artbloom-peach/80"
+                      className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold shadow-md"
                       disabled={loading}
                     >
                       {loading ? "Creating account..." : "Create Account"}
@@ -297,10 +305,10 @@ const Login = () => {
                 </Form>
               )}
             </CardContent>
-            <CardFooter className="justify-center">
+            <CardFooter className="justify-center pt-2 pb-6">
               <Button 
                 variant="link" 
-                className="text-artbloom-peach"
+                className="text-orange-600 font-bold hover:text-orange-700"
                 onClick={() => setIsLogin(!isLogin)}
                 disabled={loading}
               >
@@ -311,8 +319,7 @@ const Login = () => {
         </div>
       </main>
       
-      <Footer />
-    </div>
+      </div>
   );
 };
 

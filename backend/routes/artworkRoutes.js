@@ -1,5 +1,4 @@
 import express from "express";
-import express from "express";
 import {
   getArtworks,
   getArtworkById,
@@ -32,8 +31,6 @@ router
   .put(protect, upload.single("artworkImage"), updateArtwork)
   .delete(protect, deleteArtwork);
 
-// Fetch artworks by artist
-router.route("/artist/:artistId").get(getArtworksByArtist);
 // Fetch artworks by artist
 router.route("/artist/:artistId").get(getArtworksByArtist);
 
