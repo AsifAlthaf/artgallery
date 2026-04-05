@@ -52,7 +52,7 @@ const getArtworkById = asyncHandler(async (req, res) => {
 // @route   POST /api/artworks
 // @access  Private/Artist
 const createArtwork = asyncHandler(async (req, res) => {
-  const { title, description, category, price, stock } = req.body;
+  const { title, description, category, price, stock, medium, dimensions } = req.body;
 
   if (!req.file) {
     res.status(400);
@@ -93,7 +93,9 @@ const createArtwork = asyncHandler(async (req, res) => {
     description,
     category,
     price,
-    stock,
+    medium,
+    dimensions,
+    stock: stock || 1,
     imageUrl: cloudinaryResult.secure_url,
     cloudinaryId: cloudinaryResult.public_id,
   });
@@ -106,7 +108,7 @@ const createArtwork = asyncHandler(async (req, res) => {
 // @route   PUT /api/artworks/:id
 // @access  Private/Artist/Admin
 const updateArtwork = asyncHandler(async (req, res) => {
-  const { title, description, category, price, stock } = req.body;
+  const { title, description, category, price, stock, medium, dimensions } = req.body;
 
   const artwork = await Artwork.findById(req.params.id);
 
@@ -128,6 +130,8 @@ const updateArtwork = asyncHandler(async (req, res) => {
   artwork.category = category || artwork.category;
   artwork.price = price || artwork.price;
   artwork.stock = stock || artwork.stock;
+  artwork.medium = medium || artwork.medium;
+  artwork.dimensions = dimensions || artwork.dimensions;
 
   if (req.file) {
     if (artwork.cloudinaryId) {

@@ -35,9 +35,18 @@ const artworkSchema = new mongoose.Schema(
         "digital_art",
         "drawing",
         "mixed_media",
+        "illustration",
         "other",
       ],
       default: "other",
+    },
+    medium: {
+      type: String,
+      trim: true,
+    },
+    dimensions: {
+      type: String,
+      trim: true,
     },
     price: {
       type: Number,

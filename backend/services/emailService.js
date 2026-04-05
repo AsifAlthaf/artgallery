@@ -3,16 +3,37 @@ import nodemailer from 'nodemailer';
 import { google } from 'googleapis';
 import config from '../config/index.js';
 
+const mailHost = config.EMAIL_HOST || 'smtp.gmail.com';
+const mailPort = Number(config.EMAIL_PORT || 587);
+const mailUser = config.EMAIL_USER;
+const mailPass = config.EMAIL_PASS;
+
 // Option 1: Using SMTP (e.g., Gmail with App Password)
 const transporter = nodemailer.createTransport({
-  host: config.EMAIL_SERVICE_HOST,
-  port: config.EMAIL_SERVICE_PORT,
-  secure: config.EMAIL_SERVICE_PORT == 465, // Use 'true' for port 465, 'false' for other ports like 587
+  host: mailHost,
+  port: mailPort,
+  secure: mailPort === 465, // Use 'true' for port 465, 'false' for other ports like 587
   auth: {
-    user: config.EMAIL_SERVICE_USER,
-    pass: config.EMAIL_SERVICE_PASS,
+    user: mailUser,
+    pass: mailPass,
   },
 });
+
+const verifyEmailTransport = async () => {
+  if (!mailUser || !mailPass) {
+    console.warn('SMTP credentials are missing. Email notifications are disabled until EMAIL_USER/EMAIL_PASS or EMAIL_SERVICE_USER/EMAIL_SERVICE_PASS are set.');
+    return false;
+  }
+
+  try {
+    await transporter.verify();
+    console.log(`SMTP transporter verified for ${mailHost}:${mailPort}`);
+    return true;
+  } catch (error) {
+    console.warn(`SMTP transporter verification failed for ${mailHost}:${mailPort}:`, error.message);
+    return false;
+  }
+};
 
 // Option 2 (More robust for Gmail): Using OAuth2 for Gmail (Requires more setup on Google Cloud Console)
 // This is more complex but recommended for production Gmail usage to avoid app password issues.
@@ -59,7 +80,7 @@ const transporter = nodemailer.createTransport({
 // Using Option 1 (simpler SMTP setup for initial development)
 const sendMail = async (to, subject, htmlContent) => {
   const mailOptions = {
-    from: `ART BLOOM <${config.EMAIL_SERVICE_USER}>`,
+    from: `ART BLOOM <${mailUser}>`,
     to: to,
     subject: subject,
     html: htmlContent,
@@ -76,6 +97,53 @@ const sendMail = async (to, subject, htmlContent) => {
   }
 };
 
+const sendLoginNotificationMail = async (userEmail, userName, deviceDetails = 'New Device') => {
+  const subject = 'New Login to Art Bloom Detected';
+
+  const githubAsif = 'https://github.com/AsifAlthaf';
+  const githubRohini = 'https://github.com/Rohinisai04';
+  const webAppUrl = 'https://art-bloom.onrender.com';
+  const expoAppUrl = 'https://expo.dev/accounts/asif_shaik/projects/artbloom-mobile/builds/57c5deee-7038-4569-9d10-c05f0bc29a75';
+
+  const htmlContent = `
+    <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; background-color: #f9fafb; padding: 20px; border-radius: 8px;">
+      <h1 style="color: #4F46E5; text-align: center;">Art Bloom</h1>
+      <h2 style="color: #111827;">Hello ${userName},</h2>
+      <p style="font-size: 16px;">We noticed a recent login to your Art Bloom account from a <strong>${deviceDetails}</strong>.</p>
+      <p style="font-size: 16px;">If this was you, you don't need to do anything. If you don't recognize this activity, please change your password immediately.</p>
+      
+      <div style="background-color: #ffffff; padding: 15px; border-radius: 5px; margin-top: 20px; text-align: center;">
+        <h3 style="color: #4F46E5;">Explore Art Bloom</h3>
+        <p><a href="${webAppUrl}" style="color: #4F46E5; font-weight: bold; text-decoration: none;">🖼️ Visit the Web App</a></p>
+        <p><a href="${expoAppUrl}" style="color: #4F46E5; font-weight: bold; text-decoration: none;">📱 Download the Mobile App</a></p>
+      </div>
+
+      <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
+      
+      <div style="text-align: center; color: #6b7280; font-size: 14px;">
+        <p>Built with ❤️ by the Art Bloom Team:</p>
+        <p>
+          <a href="${githubAsif}" style="color: #6b7280; font-weight: bold; text-decoration: none;">Asif Althaf (GitHub)</a> &bull; 
+          <a href="${githubRohini}" style="color: #6b7280; font-weight: bold; text-decoration: none;">Rohini Sai (GitHub)</a>
+        </p>
+      </div>
+    </div>
+  `;
+
+  try {
+    const info = await transporter.sendMail({
+      from: `"Art Bloom Security" <${mailUser}>`,
+      to: userEmail,
+      subject,
+      html: htmlContent,
+    });
+    console.log('Login notification sent to %s', userEmail);
+    return info;
+  } catch (error) {
+    console.warn('Email feature inactive or not fully configured. Error:', error.message);
+  }
+};
+
 const sendWelcomeEmail = async (userEmail, userName) => {
   const subject = 'Welcome to ART BLOOM!';
   const htmlContent = `
@@ -83,7 +151,7 @@ const sendWelcomeEmail = async (userEmail, userName) => {
     <p>Thank you for signing in to ART BLOOM. We're thrilled to have you join our creative community!</p>
     <p>Start exploring beautiful art, connect with artists, or showcase your own masterpieces.</p>
     <p>Dive in and discover what ART BLOOM has to offer:</p>
-    <p><a href="http://localhost:3000/discover" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;">Explore ART BLOOM</a></p>
+    <p><a href="http://localhost:5173/discover" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;">Explore ART BLOOM</a></p>
     <p>If you have any questions, feel free to reply to this email.</p>
     <p>Happy creating!<br>The ART BLOOM Team</p>
   `;
@@ -114,8 +182,10 @@ const sendOrderConfirmationEmail = async (userEmail, userName, orderDetails) => 
 
 export {
   sendMail,
+  sendLoginNotificationMail,
   sendWelcomeEmail,
   sendOrderConfirmationEmail,
+  verifyEmailTransport,
   // Add other email functions as needed
 };
 

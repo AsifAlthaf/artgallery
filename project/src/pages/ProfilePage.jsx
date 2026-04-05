@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import AdminDashboard from "@/components/AdminDashboard";
 
 // Cloudinary image optimizer for instant loading
 const optimizeCloudinaryUrl = (url, width = 800) => {
@@ -26,8 +27,12 @@ const confirmDelete = (onConfirm) => {
   }
 };
 
+const getAuthConfig = () => ({
+  headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+});
+
 const ProfilePage = () => {
-  const { currentUser, logout } = useAuth();
+  const { currentUser, login, logout } = useAuth();
   const [artworks, setArtworks] = useState([]);
   const [orders, setOrders] = useState([]);
   const [favorites, setFavorites] = useState([]);
@@ -124,17 +129,18 @@ const ProfilePage = () => {
   const handleDeleteArtwork = async (id) => {
     confirmDelete(async () => {
       try {
-        await axios.delete(`/api/artworks/${id}`);
+        await axios.delete(`/api/artworks/${id}`, getAuthConfig());
         setArtworks(artworks.filter(art => art._id !== id));
       } catch (error) {
         console.error("Failed to delete artwork:", error);
+        toast.error(error.response?.data?.message || "Failed to delete artwork");
       }
     });
   };
 
   const removeFromFavorites = async (id) => {
       try {
-          await axios.delete(`/api/users/favorites/${id}`);
+          await axios.delete(`/api/users/favorites/${id}`, getAuthConfig());
           setFavorites(favorites.filter(fav => fav._id !== id));
       } catch (error) {
           console.error("Error removing favorite:", error);
@@ -158,7 +164,7 @@ const ProfilePage = () => {
           await axios.put(`/api/artworks/${editingArtwork._id}`, {
               ...editForm,
               category: editForm.category.toLowerCase()
-          });
+        }, getAuthConfig());
           
           setArtworks(artworks.map(art => 
               art._id === editingArtwork._id ? { ...art, ...editForm } : art
@@ -176,6 +182,11 @@ const ProfilePage = () => {
   }, [currentUser, navigate]);
 
   if (!currentUser) return <div className="min-h-screen flex items-center justify-center p-8"><p className="text-gray-500 animate-pulse font-medium text-lg">Signing out securely...</p></div>;
+
+  // SYSTEM ADMIN OVERRIDE DIRECTIVE
+  if (currentUser.role === 'admin') {
+      return <AdminDashboard />;
+  }
 
   const NavItem = ({ id, icon: Icon, label }) => (
     <button 
@@ -288,12 +299,13 @@ const ProfilePage = () => {
                                formData.append("profileImage", profileImageFile);
                            }
                            
-                           await axios.put('/api/users/profile', formData, { 
+                           const { data } = await axios.put('/api/users/profile', formData, { 
                                headers: { 
                                    Authorization: `Bearer ${localStorage.getItem('token')}`,
                                    'Content-Type': 'multipart/form-data'
                                }
                            });
+                           login(data, data.token);
                            window.location.reload();
                         } catch (err) {
                            alert(err.response?.data?.message || 'Failed to update profile');

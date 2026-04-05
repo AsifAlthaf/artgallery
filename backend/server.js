@@ -2,6 +2,10 @@ import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
+import helmet from "helmet";
+import xss from "xss-clean";
+import mongoSanitize from "express-mongo-sanitize";
+import rateLimit from "express-rate-limit";
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -15,6 +19,7 @@ import paymentRoutes from "./routes/paymentRoutes.js";
 // Import middleware
 import { notFound, errorHandler } from "./middleware/errorHandler.js";
 import connectDB from "./config/db.js";
+import { verifyEmailTransport } from "./services/emailService.js";
 
 // Import config
 import config from "./config/index.js";
@@ -32,6 +37,20 @@ const __dirname = path.dirname(__filename);
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Security Middleware (Headers, XSS, NoSQL Injection)
+app.use(helmet());
+app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" })); // Important for rendering images
+app.use(xss());
+app.use(mongoSanitize());
+
+// Global Rate Limiter - Protects Cloudinary Quota
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 mins
+  max: 60, // Limit general requests to 60 per IP
+  message: "Too many requests from this IP, please try again in 15 minutes",
+});
+app.use("/api", limiter);
 
 // Request Logging Middleware
 app.use((req, res, next) => {
@@ -60,6 +79,9 @@ app.use(errorHandler);
 
 // DB connection
 connectDB();
+verifyEmailTransport().catch((error) => {
+  console.warn("Email transport verification skipped:", error.message);
+});
 
 // Server
 const PORT = config.PORT || 5000;

@@ -24,7 +24,7 @@ const loginSchema = z.object({
 });
 
 const registerSchema = z.object({
-  name: z.string().min(2, { message: "Name must be at least 2 characters" }),
+  name: z.string().min(6, { message: "Name must be at least 6 characters" }),
   email: z.string().email({ message: "Invalid email address" }),
   password: z.string().min(6, { message: "Password must be at least 6 characters" }),
   confirmPassword: z.string().min(6, { message: "Password must be at least 6 characters" }),
@@ -35,6 +35,7 @@ const registerSchema = z.object({
 
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
+  const [isAdminLogin, setIsAdminLogin] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
@@ -63,6 +64,26 @@ const Login = () => {
   const onLoginSubmit = async (values) => {
     setLoading(true);
     try {
+      if (isAdminLogin) {
+        // Secure Internal Admin Bypass Check
+        if (values.email === import.meta.env.VITE_ADMIN_EMAIL && values.password === import.meta.env.VITE_ADMIN_PASSWORD) {
+           const adminUser = {
+              _id: 'admin_master_1',
+              name: 'ArtBloom System Admin',
+              email: import.meta.env.VITE_ADMIN_EMAIL,
+              role: 'admin',
+              isAdmin: true,
+              username: 'sysadmin'
+           };
+           login(adminUser, import.meta.env.VITE_ADMIN_TOKEN);
+           toast.success("Administrator Access Granted.");
+           navigate('/profile'); // Renders internal dashboard logic
+           return;
+        } else {
+           throw new Error("Only Admins and developers can access this page");
+        }
+      }
+
       const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
       const { data } = await axios.post(`${API_URL}/auth/login`, {
         email: values.email,
@@ -75,7 +96,7 @@ const Login = () => {
       navigate('/');
     } catch (error) {
       console.error('Login error:', error.response?.data || error.message);
-      toast.error(error.response?.data?.message || "Login failed!");
+      toast.error(error.response?.data?.message || error.message || "Login failed!");
     } finally {
       setLoading(false);
     }
@@ -202,33 +223,47 @@ const Login = () => {
                         <FormItem>
                           <FormLabel className="text-artbloom-charcoal font-semibold">Password</FormLabel>
                           <FormControl>
-                            <Input placeholder="••••••••" type="password" className="bg-white border-gray-300 text-artbloom-charcoal placeholder:text-gray-400" {...field} />
+                            <Input placeholder="********" type="password" className="bg-white border-gray-300 text-artbloom-charcoal placeholder:text-gray-400" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
-                    <div className="flex items-center justify-between">
-                      <FormField
-                        control={loginForm.control}
-                        name="rememberMe"
-                        render={({ field }) => (
-                          <FormItem className="flex flex-row items-center space-x-2 space-y-0">
-                            <FormControl>
-                              <Checkbox 
-                                checked={field.value} 
-                                onCheckedChange={field.onChange}
-                              />
-                            </FormControl>
-                            <FormLabel className="text-sm font-semibold leading-none text-artbloom-charcoal peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                              Remember me
-                            </FormLabel>
-                          </FormItem>
-                        )}
-                      />
-                      <Link to="#" className="text-sm font-bold text-orange-600 hover:text-orange-700 hover:underline">
-                        Forgot password?
-                      </Link>
+                    <div className="flex flex-col gap-3">
+                      <div className="flex items-center justify-between">
+                        <FormField
+                          control={loginForm.control}
+                          name="rememberMe"
+                          render={({ field }) => (
+                            <FormItem className="flex flex-row items-center space-x-2 space-y-0">
+                              <FormControl>
+                                <Checkbox 
+                                  checked={field.value} 
+                                  onCheckedChange={field.onChange}
+                                />
+                              </FormControl>
+                              <FormLabel className="text-sm font-semibold leading-none text-artbloom-charcoal peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                                Remember me
+                              </FormLabel>
+                            </FormItem>
+                          )}
+                        />
+                        <Link to="#" className="text-sm font-bold text-orange-600 hover:text-orange-700 hover:underline">
+                          Forgot password?
+                        </Link>
+                      </div>
+
+                      {/* Admin Toggle */}
+                      <div className="flex items-center space-x-2 bg-gray-50 p-3 rounded-md border border-gray-100">
+                        <Checkbox 
+                            id="admin-mode"
+                            checked={isAdminLogin}
+                            onCheckedChange={setIsAdminLogin}
+                        />
+                        <label htmlFor="admin-mode" className="text-sm font-bold text-red-600 cursor-pointer select-none">
+                            Administrator Sign-In
+                        </label>
+                      </div>
                     </div>
                     <Button 
                       type="submit" 
@@ -275,7 +310,7 @@ const Login = () => {
                         <FormItem>
                           <FormLabel className="text-artbloom-charcoal font-semibold">Password</FormLabel>
                           <FormControl>
-                            <Input placeholder="••••••••" type="password" className="bg-white border-gray-300 text-artbloom-charcoal placeholder:text-gray-400" {...field} />
+                            <Input placeholder="********" type="password" className="bg-white border-gray-300 text-artbloom-charcoal placeholder:text-gray-400" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -288,7 +323,7 @@ const Login = () => {
                         <FormItem>
                           <FormLabel className="text-artbloom-charcoal font-semibold">Confirm Password</FormLabel>
                           <FormControl>
-                            <Input placeholder="••••••••" type="password" className="bg-white border-gray-300 text-artbloom-charcoal placeholder:text-gray-400" {...field} />
+                            <Input placeholder="********" type="password" className="bg-white border-gray-300 text-artbloom-charcoal placeholder:text-gray-400" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>

@@ -24,7 +24,6 @@ const checkoutSchema = z.object({
   state: z.string().min(2, "State must be at least 2 characters"),
   zipCode: z.string().min(5, "ZIP code must be at least 5 characters"),
   country: z.string().min(2, "Please select a country"),
-  deliveryDate: z.string().min(1, "Please select a delivery date"),
   paymentMethod: z.string().min(1, "Please select a payment method"),
   cardNumber: z.string().optional(),
   cardExpiry: z.string().optional(),
@@ -47,7 +46,6 @@ const Checkout = () => {
       state: "",
       zipCode: "",
       country: "",
-      deliveryDate: "",
       paymentMethod: "",
       cardNumber: "",
       cardExpiry: "",
@@ -71,7 +69,7 @@ const Checkout = () => {
             orderItems: cartItems.map(item => ({
                 name: item.title || item.name,
                 qty: item.quantity,
-                image: item.imageUrl || item.image || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png",
+                imageUrl: item.imageUrl || item.image || "/placeholder.png",
                 price: item.price,
                 artwork: item._id || item.id
             })),
@@ -105,24 +103,7 @@ const Checkout = () => {
     }
   };
 
-  const generateDeliveryDates = () => {
-    const dates = [];
-    const today = new Date();
-    for (let i = 3; i <= 14; i++) {
-      const date = new Date(today);
-      date.setDate(today.getDate() + i);
-      dates.push({
-        value: date.toISOString().split('T')[0],
-        label: date.toLocaleDateString('en-US', { 
-          weekday: 'long', 
-          year: 'numeric', 
-          month: 'long', 
-          day: 'numeric' 
-        })
-      });
-    }
-    return dates;
-  };
+
 
   return (
     <div className="min-h-screen flex flex-col bg-artbloom-cream">
@@ -261,6 +242,7 @@ const Checkout = () => {
                                   <SelectItem value="ca">Canada</SelectItem>
                                   <SelectItem value="uk">United Kingdom</SelectItem>
                                   <SelectItem value="au">Australia</SelectItem>
+                                  <SelectItem value="in">India</SelectItem>
                                 </SelectContent>
                               </Select>
                               <FormMessage />
@@ -271,38 +253,7 @@ const Checkout = () => {
                     </CardContent>
                   </Card>
 
-                  {/* Delivery Options */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Delivery Options</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <FormField
-                        control={form.control}
-                        name="deliveryDate"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Preferred Delivery Date</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select delivery date" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {generateDeliveryDates().map((date) => (
-                                  <SelectItem key={date.value} value={date.value}>
-                                    {date.label}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </CardContent>
-                  </Card>
+
 
                   {/* Payment Method */}
                   <Card>

@@ -1,14 +1,35 @@
 import User from '../models/User.js';
 import { generateToken } from '../utils/generateToken.js';
 import asyncHandler from 'express-async-handler';
-// import { sendVerificationEmail } from '../services/emailService.js';
 import bcrypt from 'bcryptjs';
+import { validateRegistrationInput } from '../utils/validation.js';
+import { sendWelcomeEmail } from '../services/emailService.js';
+
+const sendWelcomeEmailOnce = async (user) => {
+    if (!user || user.welcomeEmailSent) {
+        return;
+    }
+
+    try {
+        await sendWelcomeEmail(user.email, user.name);
+        user.welcomeEmailSent = true;
+        await user.save();
+    } catch (error) {
+        console.warn(`Welcome email could not be sent to ${user.email}:`, error.message);
+    }
+};
 
 // @desc    Register a new user
 // @route   POST /api/auth/register
 // @access  Public
 const registerUser = asyncHandler(async (req, res) => {
     const { name, email, password, username } = req.body;
+
+    const validation = validateRegistrationInput(name, email, password, username);
+    if (!validation.isValid) {
+        res.status(400);
+        throw new Error(validation.message);
+    }
 
     const userExists = await User.findOne({ email });
 
@@ -35,8 +56,7 @@ const registerUser = asyncHandler(async (req, res) => {
     });
 
     if (user) {
-        // Optionally send a verification email
-        // await sendVerificationEmail(user.email, user.name, user._id);
+        await sendWelcomeEmailOnce(user);
 
         res.status(201).json({
             _id: user._id,
@@ -61,6 +81,8 @@ const loginUser = asyncHandler(async (req, res) => {
     const user = await User.findOne({ email });
 
     if (user && (await user.matchPassword(password))) {
+        await sendWelcomeEmailOnce(user);
+
         res.json({
             _id: user._id,
             name: user.name,
@@ -99,6 +121,9 @@ const googleAuth = asyncHandler(async (req, res) => {
         if (updated) {
             await user.save();
         }
+
+        await sendWelcomeEmailOnce(user);
+
         res.json({
             _id: user._id,
             name: user.name,
@@ -131,6 +156,8 @@ const googleAuth = asyncHandler(async (req, res) => {
         });
 
         if (user) {
+            await sendWelcomeEmailOnce(user);
+
             res.status(201).json({
                 _id: user._id,
                 name: user.name,

@@ -55,7 +55,7 @@ const LoginScreen = () => {
                             <Text className="mb-2 font-medium text-black">Password</Text>
                             <TextInput
                                 className="w-full bg-white border border-gray-200 rounded-lg p-4 font-sans"
-                                placeholder="••••••••"
+                                placeholder="********"
                                 value={password}
                                 onChangeText={setPassword}
                                 secureTextEntry

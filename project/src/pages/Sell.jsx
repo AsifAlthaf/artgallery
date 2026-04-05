@@ -32,6 +32,14 @@ const Sell = () => {
       return;
     }
     setSelectedFile(file);
+    if (file) {
+       const img = new Image();
+       img.src = URL.createObjectURL(file);
+       img.onload = () => {
+           setFormData(prev => ({...prev, dimensions: `${img.width} x ${img.height} px`}));
+           toast.success(`Dimensions auto-detected: ${img.width}x${img.height}`);
+       };
+    }
   };
 
   const handleInputChange = (e) => {
@@ -52,7 +60,7 @@ const Sell = () => {
     try {
       // Create FormData
       const data = new FormData();
-      data.append('image', selectedFile);
+      data.append('artworkImage', selectedFile);
       data.append('title', formData.title);
       data.append('description', formData.description);
       data.append('category', formData.category.toLowerCase());
@@ -136,7 +144,7 @@ const Sell = () => {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="painting">Painting</SelectItem>
-                        <SelectItem value="digital">Digital Art</SelectItem>
+                        <SelectItem value="digital_art">Digital Art</SelectItem>
                         <SelectItem value="photography">Photography</SelectItem>
                         <SelectItem value="sculpture">Sculpture</SelectItem>
                         <SelectItem value="illustration">Illustration</SelectItem>

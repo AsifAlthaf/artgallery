@@ -108,9 +108,9 @@ const Index = () => {
           )}
 
           <div className="text-center mt-12">
-            <button className="px-6 py-3 bg-white text-artbloom-brown border border-artbloom-brown/30 font-medium rounded-md shadow-md hover:bg-artbloom-brown hover:text-white transition-all duration-300">
+            <Link to="/discover" className="inline-block px-6 py-3 bg-white text-artbloom-brown border border-artbloom-brown/30 font-medium rounded-md shadow-md hover:bg-artbloom-brown hover:text-white transition-all duration-300">
               Explore Full Gallery
-            </button>
+            </Link>
           </div>
         </div>
       </section>
@@ -236,12 +236,12 @@ const Index = () => {
               Join thousands of artists who have found their creative home at ArtBloom. Sign up today and unleash your artistic potential.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="px-8 py-3 bg-artbloom-gold text-white font-medium rounded-md shadow-lg hover:bg-artbloom-gold/90 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+              <Link to="/login" className="inline-block px-8 py-3 bg-artbloom-gold text-white font-medium rounded-md shadow-lg hover:bg-artbloom-gold/90 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
                 Sign Up for Free
-              </button>
-              <button className="px-8 py-3 bg-white text-artbloom-brown border border-artbloom-brown/30 font-medium rounded-md shadow hover:bg-artbloom-brown/5 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+              </Link>
+              <Link to="/discover" className="inline-block px-8 py-3 bg-white text-artbloom-brown border border-artbloom-brown/30 font-medium rounded-md shadow hover:bg-artbloom-brown/5 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
                 Learn More
-              </button>
+              </Link>
             </div>
           </div>
         </section>

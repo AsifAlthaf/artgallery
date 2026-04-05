@@ -6,7 +6,7 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Button } from '@/components/ui/button';
 import axios from 'axios';
 import { useAuth } from '@/contexts/AuthContext';
-import { useToast } from "@/components/ui/use-toast"; // Assuming Shadcn toast exists or use native
+import { toast } from 'sonner';
 import { useCart } from "@/contexts/CartContext";
 import { useNavigate } from "react-router-dom";
 
@@ -176,7 +176,7 @@ const Discover = () => {
               <h2 className="text-xl md:text-2xl font-playfair font-bold text-artbloom-charcoal mb-6">Featured Artists</h2>
               <div className="flex overflow-x-auto gap-5 pb-4 custom-scrollbar">
                 {featuredArtists.map(artist => (
-                  <div key={artist._id} className="flex flex-col items-center flex-shrink-0 w-24 cursor-pointer group hover:opacity-80 transition-opacity">
+                  <div key={artist._id} onClick={() => navigate(`/artist/${artist._id || artist.id}`)} className="flex flex-col items-center flex-shrink-0 w-24 cursor-pointer group hover:opacity-80 transition-opacity">
                     <div className="w-20 h-20 rounded-full border-2 border-orange-500 p-0.5 mb-2 shadow-sm relative overflow-hidden bg-white">
                       <img loading="lazy" src={optimizeCloudinaryUrl(artist.imageUrl || artist.profilePicture || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png", 200)} alt={artist.name} className="w-full h-full rounded-full object-cover" />
                     </div>
@@ -246,7 +246,7 @@ const Discover = () => {
           
           {/* Load More Button */}
           <div className="flex justify-center mt-12">
-            <Button variant="outline" className="border-orange-500 text-orange-600 font-bold hover:bg-orange-500 hover:text-white">
+            <Button variant="outline" onClick={() => toast.info('No additional artworks found.')} className="border-orange-500 text-orange-600 font-bold hover:bg-orange-500 hover:text-white">
               Load More Artworks
             </Button>
           </div>

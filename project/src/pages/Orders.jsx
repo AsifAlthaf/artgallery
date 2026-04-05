@@ -68,7 +68,7 @@ const Orders = () => {
             <p className="text-gray-500 mb-6">You haven't placed any orders. Start expanding your art collection!</p>
             <Link 
               to="/discover" 
-              className="inline-block bg-artbloom-peach text-white font-medium py-3 px-8 rounded-lg hover:bg-artbloom-peach/90 transition-colors"
+              className="inline-block bg-orange-500 text-white font-medium py-3 px-8 rounded-lg hover:bg-orange-600 transition-colors shadow-md"
             >
               Discover Art
             </Link>

@@ -20,3 +20,11 @@ firebase-config.js
 /mobile/.env
 .env
 backend/serviceAccountKey.json
+
+# Test outputs
+test-output.json
+test-results.json
+coverage/
+**/coverage/
+/backend/testlog.txt
+/backend/test_results.txt

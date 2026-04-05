@@ -55,6 +55,7 @@ export const AuthProvider = ({ children }) => {
     setIsAuthenticated(false);
     localStorage.removeItem("userInfo");
     localStorage.removeItem("token");
+    localStorage.removeItem("artbloom_notifications"); // Prevent admin notification leaks
   };
 
   const value = {

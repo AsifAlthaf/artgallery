@@ -19,12 +19,16 @@ const getUserProfile = asyncHandler(async (req, res) => {
             shippingAddress: user.shippingAddress,
             billingAddress: user.billingAddress,
             addresses: user.addresses,
+            followers: user.followers,
+            following: user.following,
         });
     } else {
         res.status(404);
         throw new Error('User not found');
     }
 });
+
+import { isProfane, validateUsername } from '../utils/validation.js';
 
 // @desc    Update user profile
 // @route   PUT /api/users/profile
@@ -42,6 +46,14 @@ const updateUserProfile = asyncHandler(async (req, res) => {
         }
 
         if (req.body.username) {
+            if (isProfane(req.body.username)) {
+                res.status(400);
+                throw new Error('Username contains inappropriate or reserved words');
+            }
+            if (!validateUsername(req.body.username)) {
+                res.status(400);
+                throw new Error('Invalid username format (3-30 chars, alphanumeric)');
+            }
             const usernameExists = await User.findOne({ username: req.body.username });
             if (usernameExists && usernameExists._id.toString() !== user._id.toString()) {
                 res.status(400);
@@ -105,6 +117,8 @@ const updateUserProfile = asyncHandler(async (req, res) => {
             shippingAddress: updatedUser.shippingAddress,
             billingAddress: updatedUser.billingAddress,
             addresses: updatedUser.addresses,
+            followers: updatedUser.followers,
+            following: updatedUser.following,
             token: req.token, // Return the existing token, or re-issue if desired
         });
     } else {

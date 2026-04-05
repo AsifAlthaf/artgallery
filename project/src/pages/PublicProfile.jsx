@@ -5,6 +5,7 @@ import { MapPin, Link as LinkIcon, Calendar, Users, Heart, Image as ImageIcon } 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
 
 const optimizeCloudinaryUrl = (url, width = 800) => {
     if (!url) return url;
@@ -28,22 +29,32 @@ const PublicProfile = () => {
     const fetchArtistData = async () => {
       try {
         setLoading(true);
-        // Fallback robust fetching mapping the known /api/users/public endpoint if a specific /:id one fails
+        let userData = null;
         try {
            const userRes = await axios.get(`/api/users/${id}`);
-           setArtist(userRes.data);
+           userData = userRes.data;
         } catch (e) {
            const publicRes = await axios.get('/api/users/public');
            const found = publicRes.data.find(a => a._id === id || a.username === id);
-           if (found) setArtist(found);
+           if (found) userData = found;
            else throw new Error("Artist not found");
         }
+        setArtist(userData);
 
         const artsRes = await axios.get('/api/artworks');
         const artistArtworks = (artsRes.data.artworks || artsRes.data).filter(a => 
-            a.artist?._id === id || a.artist === id || a.artist?._id === artist?._id 
+            a.artist?._id === id || a.artist === id || a.artist?._id === userData?._id 
         );
         setArtworks(artistArtworks);
+
+        // Sync initial following state
+        if (currentUser && userData?.followers) {
+            const isUserFollowing = userData.followers.some(id => 
+                id === (currentUser._id || currentUser.uid) || 
+                id?._id === (currentUser._id || currentUser.uid)
+            );
+            setIsFollowing(isUserFollowing);
+        }
 
       } catch (error) {
         console.error("Error fetching public profile:", error);
@@ -53,9 +64,34 @@ const PublicProfile = () => {
     };
 
     if (id) fetchArtistData();
-  }, [id]);
+  }, [id, currentUser]);
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center bg-[#FAFAFA] dark:bg-[#050505]">Loading artist profile...</div>;
+  const handleFollow = async () => {
+    if (!currentUser) {
+        return toast.error("Please login to follow artists");
+    }
+
+    try {
+        const config = { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } };
+        const { data } = await axios.post(`/api/users/${artist._id}/follow`, {}, config);
+        
+        setIsFollowing(data.isFollowing);
+        
+        // Optimistically update the counts
+        setArtist(prev => ({
+            ...prev,
+            followers: data.isFollowing 
+                ? [...(prev.followers || []), currentUser._id] 
+                : (prev.followers || []).filter(id => id !== currentUser._id)
+        }));
+
+        toast.success(data.isFollowing ? `Following ${artist.name}` : `Unfollowed ${artist.name}`);
+    } catch (error) {
+        toast.error("Follow action failed");
+    }
+  };
+
+  if (loading) return <div className="min-h-screen flex items-center justify-center bg-[#FAFAFA] dark:bg-[#050505] p-8 text-xl font-medium animate-pulse text-orange-500">Retrieving Artist Portfolio...</div>;
   if (!artist) return <div className="min-h-screen flex items-center justify-center bg-[#FAFAFA] dark:bg-[#050505]">Artist not found</div>;
 
   return (
@@ -76,12 +112,18 @@ const PublicProfile = () => {
               </div>
               <div className="flex gap-3">
                 <Button 
-                    onClick={() => setIsFollowing(!isFollowing)}
+                    onClick={handleFollow}
                     className={`rounded-full px-6 font-semibold transition-all shadow-sm ${isFollowing ? 'bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-800 dark:text-white' : 'bg-orange-500 hover:bg-orange-600 text-white dark:bg-[#b026ff] dark:hover:bg-[#d175ff]'}`}
                 >
                   {isFollowing ? 'Following' : 'Follow'}
                 </Button>
-                <Button variant="outline" className="rounded-full shadow-sm dark:bg-[#1a1a1a] dark:text-gray-200 dark:border-[#333333]">Message</Button>
+                <Button 
+                    onClick={() => toast.info("Messaging feature coming soon! Stay tuned for a professional and crazy update.")}
+                    variant="outline" 
+                    className="rounded-full shadow-sm dark:bg-[#1a1a1a] dark:text-gray-200 dark:border-[#333333]"
+                >
+                  Message
+                </Button>
               </div>
             </div>
 
@@ -95,11 +137,11 @@ const PublicProfile = () => {
                     <span className="text-gray-500 dark:text-gray-400 text-sm">Uploads</span>
                 </div>
                 <div className="flex gap-2 text-center items-center">
-                    <span className="font-bold text-xl text-gray-900 dark:text-white">{artist.followers || Math.floor(Math.random() * 500) + 10}</span>
+                    <span className="font-bold text-xl text-gray-900 dark:text-white">{artist.followers?.length || 0}</span>
                     <span className="text-gray-500 dark:text-gray-400 text-sm">Followers</span>
                 </div>
                 <div className="flex gap-2 text-center items-center">
-                    <span className="font-bold text-xl text-gray-900 dark:text-white">{artist.following || Math.floor(Math.random() * 100) + 5}</span>
+                    <span className="font-bold text-xl text-gray-900 dark:text-white">{artist.following?.length || 0}</span>
                     <span className="text-gray-500 dark:text-gray-400 text-sm">Following</span>
                 </div>
               </div>
