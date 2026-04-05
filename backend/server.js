@@ -66,6 +66,10 @@ app.get('/', (req, res) => {
   res.status(200).json({ status: "success", message: "ArtBloom API is running normally." });
 });
 
+app.get('/api', (req, res) => {
+  res.status(200).json({ status: "success", message: "ArtBloom API base route is healthy.", routes: ["/api/auth", "/api/users", "/api/artworks", "/api/orders", "/api/payments"] });
+});
+
 // Routes
 app.use("/api/artworks", artworksRoute);
 app.use("/api/auth", authRoutes);

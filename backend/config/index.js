@@ -16,10 +16,16 @@ const envNumber = (value, fallback) => {
   return Number.isFinite(parsed) ? parsed : fallback;
 };
 
+const normalizeEmailPassword = (rawValue = '') => {
+  // Supports values copied with trailing comments, e.g. "xxxx xxxx xxxx xxxx # app password".
+  const withoutComment = rawValue.split('#')[0].trim();
+  return withoutComment.replace(/\s+/g, '');
+};
+
 const emailHost = process.env.EMAIL_SERVICE_HOST || process.env.EMAIL_HOST;
 const emailPort = envNumber(process.env.EMAIL_SERVICE_PORT || process.env.EMAIL_PORT, 587);
 const emailUser = process.env.EMAIL_SERVICE_USER || process.env.EMAIL_USER;
-const emailPass = (process.env.EMAIL_SERVICE_PASS || process.env.EMAIL_PASS || '').replace(/\s+/g, '');
+const emailPass = normalizeEmailPassword(process.env.EMAIL_SERVICE_PASS || process.env.EMAIL_PASS || '');
 
 const config = {
   PORT: process.env.PORT || 5000,
