@@ -1,5 +1,3 @@
-// backend/middleware/errorHandler.js
-
 // Handles routes that don't exist
 const notFound = (req, res, next) => {
   const error = new Error(`Not Found - ${req.originalUrl}`);

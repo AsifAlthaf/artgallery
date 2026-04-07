@@ -6,7 +6,7 @@ import {
     updateOrderToDelivered,
     getMyOrders,
     getOrders,
-    getOrdersByUserId, // ✅ import controller
+    getOrdersByUserId, // import controller
 } from '../controllers/orderController.js';
 
 import { protect, admin } from '../middleware/authMiddleware.js';
@@ -20,7 +20,7 @@ router.route('/')
 router.route('/myorders')
     .get(protect, getMyOrders);
 
-router.get('/user/:id', protect, getOrdersByUserId); // ✅ fixed
+router.get('/user/:id', protect, getOrdersByUserId);
 
 router.route('/:id')
     .get(protect, getOrderById);

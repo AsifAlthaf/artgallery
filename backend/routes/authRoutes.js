@@ -4,9 +4,9 @@ import rateLimit from 'express-rate-limit';
 const router = express.Router();
 
 const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // Limit each IP to 5 requests per windowMs for auth
-  message: "Too many login/register attempts from this IP, please try again in 15 minutes",
+  windowMs: 30 * 60 * 1000, // 15 minutes
+  max: 4, // Limit each IP to 4 requests per windowMs for auth
+  message: "Too many login/register attempts from this IP, please try again in 30 minutes",
 });
 import {
     registerUser,

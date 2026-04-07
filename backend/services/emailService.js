@@ -1,4 +1,3 @@
-// backend/services/emailService.js
 import nodemailer from 'nodemailer';
 import { google } from 'googleapis';
 import config from '../config/index.js';

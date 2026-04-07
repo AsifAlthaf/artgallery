@@ -1,4 +1,3 @@
-// backend/models/Artwork.js
 import mongoose from "mongoose";
 
 const artworkSchema = new mongoose.Schema(

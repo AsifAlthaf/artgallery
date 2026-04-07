@@ -1,4 +1,3 @@
-// backend/services/uploadService.js
 import cloudinary from "../config/cloudinary.js";
 
 const deleteImageFromCloudinary = async (publicId) => {

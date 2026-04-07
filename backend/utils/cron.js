@@ -5,7 +5,7 @@ const setupCronJob = () => {
   cron.schedule('*/14 * * * *', async () => {
     try {
       // Replace with your Render backend URL
-      const backendUrl = 'https://art-bloom.onrender.com/'; 
+      const backendUrl = 'https://artgallery-gni4.onrender.com/';  //Updated with the live backend url
       console.log(`Pinging backend to keep it alive: ${backendUrl}`);
       
       const response = await axios.get(backendUrl);

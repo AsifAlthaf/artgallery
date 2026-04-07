@@ -13,25 +13,6 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'sonner';
-// Mock cart data
-const initialCartItems = [
-  {
-    id: 1,
-    name: "Abstract Harmony",
-    artist: "Maria Gonzalez",
-    price: 249.99,
-    image: "/placeholder.svg",
-    quantity: 1,
-  },
-  {
-    id: 2,
-    name: "Sunset Reflections",
-    artist: "David Chen",
-    price: 179.50,
-    image: "/placeholder.svg",
-    quantity: 1,
-  }
-];
 
 // Checkout form schema
 const checkoutSchema = z.object({

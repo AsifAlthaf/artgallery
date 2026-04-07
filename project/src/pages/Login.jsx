@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -6,6 +6,14 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Checkbox } from '@/components/ui/checkbox';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -13,7 +21,7 @@ import { useForm } from 'react-hook-form';
 import axios from 'axios';
 
 // Firebase imports
-import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { getRedirectResult, onAuthStateChanged, signInWithRedirect, GoogleAuthProvider, signOut } from 'firebase/auth';
 import { auth } from '@/firebase/firebase-config';
 
 // Form validation schemas
@@ -37,8 +45,93 @@ const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [isAdminLogin, setIsAdminLogin] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [pendingGoogleUser, setPendingGoogleUser] = useState(null);
   const navigate = useNavigate();
   const { login } = useAuth();
+  const googleSyncHandled = useRef(false);
+  const authRequestConfig = { timeout: 15000 };
+
+  const syncGoogleUser = async (firebaseUser) => {
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const { data } = await axios.post(
+      `${API_URL}/auth/google`,
+      {
+        name: firebaseUser.displayName,
+        email: firebaseUser.email,
+        googleId: firebaseUser.uid,
+        imageUrl: firebaseUser.photoURL,
+      },
+      { timeout: 15000 }
+    );
+
+    login(data, data.token);
+    toast.success('Google Sign In successful!');
+    navigate('/');
+  };
+
+  const promptGoogleLink = (firebaseUser) => {
+    if (!firebaseUser || googleSyncHandled.current) {
+      return;
+    }
+
+    googleSyncHandled.current = true;
+    setLoading(false);
+    setPendingGoogleUser(firebaseUser);
+  };
+
+  const continueGoogleLink = async () => {
+    if (!pendingGoogleUser) return;
+
+    try {
+      setLoading(true);
+      await syncGoogleUser(pendingGoogleUser);
+      setPendingGoogleUser(null);
+    } catch (error) {
+      console.error('Google account link failed:', error);
+      toast.error(error.response?.data?.message || error.message || 'Google Sign In failed!');
+      googleSyncHandled.current = false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const cancelGoogleLink = async () => {
+    setPendingGoogleUser(null);
+    googleSyncHandled.current = false;
+    try {
+      await signOut(auth);
+    } catch {
+      // Ignore sign-out errors from Firebase session cleanup.
+    }
+  };
+
+  useEffect(() => {
+    const completeRedirectLogin = async () => {
+      try {
+        const result = await getRedirectResult(auth);
+        const firebaseUser = result?.user || auth.currentUser;
+
+        if (firebaseUser && !googleSyncHandled.current) {
+          promptGoogleLink(firebaseUser);
+        }
+      } catch (error) {
+        console.error('Google redirect sign in error:', error);
+        toast.error(error.response?.data?.message || error.message || 'Google Sign In failed!');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    completeRedirectLogin();
+
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      if (firebaseUser && !googleSyncHandled.current && !pendingGoogleUser) {
+        promptGoogleLink(firebaseUser);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [pendingGoogleUser]);
 
   // Login form
   const loginForm = useForm({
@@ -85,10 +178,14 @@ const Login = () => {
       }
 
       const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-      const { data } = await axios.post(`${API_URL}/auth/login`, {
-        email: values.email,
-        password: values.password
-      });
+      const { data } = await axios.post(
+        `${API_URL}/auth/login`,
+        {
+          email: values.email,
+          password: values.password
+        },
+        authRequestConfig
+      );
       
       // Update your auth context with user data and token
       login(data, data.token);
@@ -96,7 +193,11 @@ const Login = () => {
       navigate('/');
     } catch (error) {
       console.error('Login error:', error.response?.data || error.message);
-      toast.error(error.response?.data?.message || error.message || "Login failed!");
+      if (error.code === 'ECONNABORTED') {
+        toast.error('Server is taking too long to respond. Try again in a few seconds.');
+      } else {
+        toast.error(error.response?.data?.message || error.message || "Login failed!");
+      }
     } finally {
       setLoading(false);
     }
@@ -106,19 +207,27 @@ const Login = () => {
     setLoading(true);
     try {
       const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-      const { data } = await axios.post(`${API_URL}/auth/register`, {
-        name: values.name,
-        email: values.email,
-        password: values.password,
-        username: values.email.split('@')[0]
-      });
+      const { data } = await axios.post(
+        `${API_URL}/auth/register`,
+        {
+          name: values.name,
+          email: values.email,
+          password: values.password,
+          username: values.email.split('@')[0]
+        },
+        authRequestConfig
+      );
       
       login(data, data.token);
       toast.success("Account created successfully!");
       navigate('/');
     } catch (error) {
       console.error('Registration error:', error.response?.data || error.message);
-      toast.error(error.response?.data?.message || "Registration failed!");
+      if (error.code === 'ECONNABORTED') {
+        toast.error('Server is taking too long to respond. Try again in a few seconds.');
+      } else {
+        toast.error(error.response?.data?.message || "Registration failed!");
+      }
     } finally {
       setLoading(false);
     }
@@ -127,29 +236,20 @@ const Login = () => {
   const handleGoogleSignIn = async () => {
     setLoading(true);
     const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({
+      prompt: 'select_account',
+    });
     
     try {
-      const result = await signInWithPopup(auth, provider);
-      const firebaseUser = result.user;
-      
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-      const { data } = await axios.post(`${API_URL}/auth/google`, {
-         name: firebaseUser.displayName,
-         email: firebaseUser.email,
-         googleId: firebaseUser.uid,
-         imageUrl: firebaseUser.photoURL
-      });
-      
-      login(data, data.token);
-      toast.success("Google Sign In successful!");
-      navigate('/');
+      await signInWithRedirect(auth, provider);
     } catch (error) {
       console.error('Google Sign In error:', error);
-      if (error.code === 'auth/popup-closed-by-user') {
+      if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
         toast.error("Sign in was cancelled");
       } else {
         toast.error(error.response?.data?.message || error.message || "Google Sign In failed!");
       }
+      setLoading(false);
     } finally {
       setLoading(false);
     }
@@ -157,6 +257,37 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-artbloom-cream">
+      <Dialog open={Boolean(pendingGoogleUser)} onOpenChange={(open) => {
+        if (!open && pendingGoogleUser) {
+          cancelGoogleLink();
+        }
+      }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-playfair text-2xl">Link Google account?</DialogTitle>
+            <DialogDescription>
+              The Google account below will be linked to your ArtBloom profile only if the email matches your existing ArtBloom email.
+              If this is the wrong Google account, cancel and choose the correct one.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="rounded-lg bg-orange-50 border border-orange-100 p-4 text-sm text-gray-700 space-y-1">
+            <p><span className="font-semibold">Google email:</span> {pendingGoogleUser?.email || 'Unknown'}</p>
+            <p><span className="font-semibold">Display name:</span> {pendingGoogleUser?.displayName || 'Unknown'}</p>
+            <p className="text-xs text-gray-500 pt-1">
+              Continue only if this is the same email you use for your ArtBloom account.
+            </p>
+          </div>
+          <DialogFooter className="sm:justify-between">
+            <Button type="button" variant="outline" onClick={cancelGoogleLink} disabled={loading}>
+              Cancel
+            </Button>
+            <Button type="button" className="bg-orange-500 hover:bg-orange-600 text-white" onClick={continueGoogleLink} disabled={loading}>
+              {loading ? 'Linking...' : 'Continue and Link'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <main className="flex-grow pt-32 pb-16">
         <div className="max-w-md mx-auto px-4">
           <Card className="glass-card">

@@ -1,4 +1,3 @@
-// backend/utils/generateToken.js
 import jwt from 'jsonwebtoken';
 import config from '../config/index.js';
 

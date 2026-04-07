@@ -42,7 +42,7 @@ const LoginScreen = () => {
                         <View>
                             <Text className="mb-2 font-medium text-black">Email</Text>
                             <TextInput
-                                className="w-full bg-white border border-gray-200 rounded-lg p-4 font-sans"
+                                className="w-full bg-artbloom-cream border-gray-200 rounded-lg p-4 font-sans"
                                 placeholder="your.email@example.com"
                                 value={email}
                                 onChangeText={setEmail}

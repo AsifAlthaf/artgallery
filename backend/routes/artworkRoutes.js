@@ -6,7 +6,7 @@ import {
   updateArtwork,
   deleteArtwork,
   getArtworksByArtist,
-  getArtworksByUserId, // ✅ import it
+  getArtworksByUserId, // import it
 } from "../controllers/artworkController.js";
 import { protect, admin, artist } from "../middleware/authMiddleware.js";
 import upload from "../middleware/uploadMiddleware.js";
@@ -21,7 +21,7 @@ router.route("/")
 
 router.get("/user/:id", getArtworksByUserId); 
 
-// // ✅ fetch artworks by user (specific)
+// fetch artworks by user (specific)
 // router.get("/user/:id", getUserArtworks);
 
 // Fetch/update/delete artwork by ID
