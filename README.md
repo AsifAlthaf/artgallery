@@ -282,7 +282,7 @@ Install the APK and create an account.
 ### Backend (Render Deployment)
 
 ```
-https://art-bloom.onrender.com
+https://artgallery-gni4.onrender.com/
 ```
 
 Open the backend URL once to wake up the server before using the app.
